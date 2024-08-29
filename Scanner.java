@@ -166,12 +166,16 @@ public class Scanner {
 
 
     public String getIdentifier(){
-        while(pend<source.length()-1&&!matchAhead(' ')){
+        while(pend<source.length()-1&&isAlphaNumerical(source.charAt(pend))){
             pend++;
         }
         return source.substring(pstart,pend+1);
     }
 
+
+    public boolean isAlphaNumerical(char c){//a variable name can only consists of alphabetic, numeric and underscore character
+        return Character.isDigit(c)||Character.isAlphabetic(c)||c=='_';
+    }
 
     public TokenType isReservedKeywords(String literal){
         return Token.reserveKeywordsMap.getOrDefault(literal,null);
