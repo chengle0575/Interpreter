@@ -19,6 +19,10 @@ public class Token {
 
 
 
+    public String toString(){
+        return this.type.toString();
+    }
+
 
     public static HashMap<String,TokenType> createReservedKeywordsMap(){
         HashMap<String,TokenType> hmap=new HashMap<>();

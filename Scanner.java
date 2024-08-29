@@ -7,7 +7,7 @@ import java.util.List;
 public class Scanner {
 
     String source;
-    List<Token> tokenlist;
+    List<Token> tokenlist=new ArrayList<>();
 
     int pstart=0;
     int pend=0;
@@ -28,6 +28,7 @@ public class Scanner {
 
     public boolean matchAhead(char tomatch){
         int ahead=pend+1;
+       // System.out.println("ahead is: "+source.charAt(ahead));
         if(ahead>=source.length())
             return false;
         if(source.charAt(ahead)==tomatch)
@@ -35,8 +36,18 @@ public class Scanner {
         return false;
     }
 
+    public boolean matchAheadDigit(){
+        int ahead=pend+1;
+        if(ahead>=source.length())
+            return false;
+        if(Character.isDigit(source.charAt(ahead))||source.charAt(ahead)=='.')
+            return true;
+        return false;
+    }
+
+
     public void exhaustComment(){
-        while(!matchAhead('\n')){
+        while(!matchAhead('\n')&&pend<source.length()){
             pend++;
         }
         pstart=pend;
@@ -44,37 +55,44 @@ public class Scanner {
 
     public String getString(){
         while (!matchAhead('"')){
+            //System.out.println("pend now= "+pend);
             pend++;
-        }
+            if(pend>=source.length()-1){
+                System.out.println("invalid string input, no ending \" ");
+                pstart=pend;
+                return "";
+            }
 
+        }
+        //System.out.println("pend now= "+pend);
         int start=pstart;
         int end=pend+1;
 
-        pstart=pend;
+        pstart=pend+1;
         return source.substring(start,end);
     }
 
     public String getNumber(){
-        while (Character.isDigit(source.charAt(pend))||source.charAt(pend)=='.'){
+        //valid number input:  123.123
+        //invalid number input: 123., .123 (leading and trailing dot are both invalid for lox language)
+        while (matchAheadDigit()){
             pend++;
         }
-        int start=pstart;
-        int end=pend;
 
-        pstart=pend;
-        return source.substring(start,end);
+        if(source.substring(pstart,pend+1).endsWith(".")){
+            System.out.println("Invalid number input");
+            return "";
+        }else{
+            return source.substring(pstart,pend+1);
+        }
     }
 
 
     public String getIdentifier(){
-        while(source.charAt(pend)!=' '){
+        while(pend<source.length()-1&&!matchAhead(' ')){
             pend++;
         }
-        int start=pstart;
-        int end=pend;
-
-        pstart=pend;
-        return source.substring(pstart,pend);
+        return source.substring(pstart,pend+1);
     }
 
 
@@ -131,12 +149,16 @@ public class Scanner {
                     String s=getString();
                     addToken(TokenType.STRING,s);
                     break;
+                case ' ':
+                    break;
                 default:
                     if(Character.isDigit(source.charAt(pstart))){
                         String numliteral=getNumber();
+                        pstart=pend;
                         addToken(TokenType.NUMBER,numliteral);
                     }else if(Character.isAlphabetic(source.charAt(pstart))){ //key idea here: 1.keywords are reserved identifier 2.the match should follow maximal munch principle
                         String identifierLiteral=getIdentifier();
+                        pstart=pend;
                         if(isReservedKeywords(identifierLiteral)!=null){
                             addToken(isReservedKeywords(identifierLiteral));
                         }else{
