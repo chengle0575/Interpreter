@@ -11,93 +11,10 @@ public class Scanner {
 
     int pstart=0;
     int pend=0;
-
-
+    int line=1;
 
     public Scanner(String source){
         this.source=source;
-    }
-
-    public void addToken(TokenType tokentype){
-        tokenlist.add(new Token(tokentype));
-    }
-    public void addToken(TokenType tokentype,String literal){
-        tokenlist.add(new Token(tokentype,literal));
-    }
-
-
-    public boolean matchAhead(char tomatch){
-        int ahead=pend+1;
-       // System.out.println("ahead is: "+source.charAt(ahead));
-        if(ahead>=source.length())
-            return false;
-        if(source.charAt(ahead)==tomatch)
-            return true;
-        return false;
-    }
-
-    public boolean matchAheadDigit(){
-        int ahead=pend+1;
-        if(ahead>=source.length())
-            return false;
-        if(Character.isDigit(source.charAt(ahead))||source.charAt(ahead)=='.')
-            return true;
-        return false;
-    }
-
-
-    public void exhaustComment(){
-        while(!matchAhead('\n')&&pend<source.length()){
-            pend++;
-        }
-        pstart=pend;
-    }
-
-    public String getString(){
-        while (!matchAhead('"')){
-            //System.out.println("pend now= "+pend);
-            pend++;
-            if(pend>=source.length()-1){
-                System.out.println("invalid string input, no ending \" ");
-                pstart=pend;
-                return "";
-            }
-
-        }
-        //System.out.println("pend now= "+pend);
-        int start=pstart;
-        int end=pend+1;
-
-        pstart=pend+1;
-        return source.substring(start,end);
-    }
-
-    public String getNumber(){
-        //valid number input:  123.123
-        //invalid number input: 123., .123 (leading and trailing dot are both invalid for lox language)
-        while (matchAheadDigit()){
-            pend++;
-        }
-
-        if(source.substring(pstart,pend+1).endsWith(".")){
-            System.out.println("Invalid number input");
-            return "";
-        }else{
-            return source.substring(pstart,pend+1);
-        }
-    }
-
-
-    public String getIdentifier(){
-        while(pend<source.length()-1&&!matchAhead(' ')){
-            pend++;
-        }
-        return source.substring(pstart,pend+1);
-    }
-
-
-    public TokenType isReservedKeywords(String literal){
-            return Token.reserveKeywordsMap.getOrDefault(literal,null);
     }
 
     public void scanTokens(){
@@ -151,6 +68,9 @@ public class Scanner {
                     break;
                 case ' ':
                     break;
+                case '\n':
+                    line++;
+                    break;
                 default:
                     if(Character.isDigit(source.charAt(pstart))){
                         String numliteral=getNumber();
@@ -165,11 +85,10 @@ public class Scanner {
                             addToken(TokenType.IDENTIFIER,identifierLiteral);
                         }
                     }else{//inexpected character, for example: @,$
-                        System.out.println("unexpected input");
+                        Lox.error(line,"Unexpected Input");
+
                     }
             }
-
-
             pstart++;
             pend=pstart;
         }
@@ -178,6 +97,90 @@ public class Scanner {
 
 
     }
+
+
+    public void addToken(TokenType tokentype){
+        tokenlist.add(new Token(tokentype));
+    }
+    public void addToken(TokenType tokentype,String literal){
+        tokenlist.add(new Token(tokentype,literal));
+    }
+
+
+    public boolean matchAhead(char tomatch){
+        int ahead=pend+1;
+        // System.out.println("ahead is: "+source.charAt(ahead));
+        if(ahead>=source.length())
+            return false;
+        if(source.charAt(ahead)==tomatch)
+            return true;
+        return false;
+    }
+
+    public boolean matchAheadDigit(){
+        int ahead=pend+1;
+        if(ahead>=source.length())
+            return false;
+        if(Character.isDigit(source.charAt(ahead))||source.charAt(ahead)=='.')
+            return true;
+        return false;
+    }
+
+
+    public void exhaustComment(){
+        while(!matchAhead('\n')&&pend<source.length()){
+            pend++;
+        }
+        pstart=pend;
+    }
+
+    public String getString(){
+        while (!matchAhead('"')){
+            //System.out.println("pend now= "+pend);
+            pend++;
+            if(pend>=source.length()-1){
+                Lox.error(line,"invalid string input, no ending with\"");
+                pstart=pend;
+                return "";
+            }
+
+        }
+        //System.out.println("pend now= "+pend);
+        int start=pstart;
+        int end=pend+1;
+
+        pstart=pend+1;
+        return source.substring(start,end);
+    }
+
+    public String getNumber(){
+        //valid number input:  123.123
+        //invalid number input: 123., .123 (leading and trailing dot are both invalid for lox language)
+        while (matchAheadDigit()){
+            pend++;
+        }
+
+        if(source.substring(pstart,pend+1).endsWith(".")){
+            Lox.error(line,"invalid number input, try to remove trailing dot .");
+            return "";
+        }else{
+            return source.substring(pstart,pend+1);
+        }
+    }
+
+
+    public String getIdentifier(){
+        while(pend<source.length()-1&&!matchAhead(' ')){
+            pend++;
+        }
+        return source.substring(pstart,pend+1);
+    }
+
+
+    public TokenType isReservedKeywords(String literal){
+        return Token.reserveKeywordsMap.getOrDefault(literal,null);
+    }
+
 
 
 

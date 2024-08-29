@@ -10,6 +10,7 @@ public class Token {
 
     public Token(TokenType t){
         this.type=t;
+        this.literal="";
     }
 
     public Token(TokenType t, String literal){
@@ -20,7 +21,7 @@ public class Token {
 
 
     public String toString(){
-        return this.type.toString();
+        return this.type.toString()+" "+this.literal;
     }
 
 
