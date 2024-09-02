@@ -1,4 +1,4 @@
-import java.util.HashMap;
+package Lox;
 
 public enum TokenType { //keywords to be identified
     // Single-character tokens.

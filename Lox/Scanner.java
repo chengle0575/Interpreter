@@ -1,6 +1,5 @@
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.StringReader;
+package Lox;
+
 import java.util.ArrayList;
 import java.util.List;
 

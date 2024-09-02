@@ -1,3 +1,5 @@
+package Lox;
+
 import java.util.HashMap;
 
 public class Token {
