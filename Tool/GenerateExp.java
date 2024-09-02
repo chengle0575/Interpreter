@@ -1,6 +1,7 @@
 package Tool;
 
 import java.io.*;
+import java.util.Arrays;
 
 public class GenerateExp {
                             //args:[classname,fieldclass,fieldclass,fieldclass]
@@ -12,62 +13,47 @@ public class GenerateExp {
         //create a file class file
         String filepath="./Lox/"+classname+".java";
         File f=new File(filepath);
+        PrintWriter w=new PrintWriter(f);
 
-        BufferedWriter w=new BufferedWriter(new FileWriter(f));
+        //generate class
+        w.println("public class "+classname+"{");
 
-        w.write("public class "+classname+"{"+"\n");
-
+        //generate fields
         for(int i=1;i<args.length;i++){
             String fieldclass=args[i];
             fields[i-1]=args[i];
-
-            w.write("public final ");
-            w.write(fieldclass+" ");
-            w.write(fieldclass.toLowerCase()+";"+"\n");
-
+            w.println("public final "+fieldclass+" "+fieldclass.toLowerCase()+";");
         }
 
-        String constructor=generateConstructor(classname,fields);
-        w.write(constructor);
-        w.write('\n');
-        w.write("}");
+        w.println(generateConstructor(classname,fields));
+        w.println("}");
         w.flush();
         w.close();
     }
 
     public static String generateConstructor(String classname, String[] fieldclass){
-
         StringBuilder sb=new StringBuilder();
         sb.append("public "+classname+"(");
 
         for(String fclass:fieldclass){
-
             if(fclass==null)
                 break;
-            sb.append(fclass);
-            sb.append(" ");
-            sb.append(fclass.toLowerCase());
-            sb.append(',');
+            sb.append(fclass+" "+fclass.toLowerCase()+",");
         }
-
         sb.deleteCharAt(sb.length()-1);
-        sb.append(") {");
-        sb.append('\n');
+        sb.append(") { \n");
 
         for(String fclass:fieldclass){
             if(fclass==null)
                 break;
-
-            sb.append("this."+fclass.toLowerCase());
-            sb.append("=");
-            sb.append(fclass.toLowerCase());
-
-            sb.append(';');
-            sb.append('\n');
+            sb.append("this."+fclass.toLowerCase()+"="+fclass.toLowerCase()+";\n");
         }
-
         sb.append("};");
 
         return sb.toString();
     }
+
+
+
+
 }
