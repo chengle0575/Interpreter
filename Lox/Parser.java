@@ -106,15 +106,15 @@ public class Parser {
     private Expression primary(){
        if(match(TokenType.NUMBER)||match(TokenType.STRING))
            return new Literal(this.input.get(p).literal);
-       if(match(TokenType.TRUE)||match(TokenType.FALSE)||match(TokenType.NIL))
-           return new Literal();
+       if(match(TokenType.TRUE)) return new Literal(true);
+       if(match(TokenType.FALSE)) return new Literal(false);
+       if(match(TokenType.NIL)) return new Literal(null);
 
        if(match(TokenType.LEFT_BRACE)){
             Expression exp=expression();
             moveahead();
             return new Grouping(exp);
        }
-
     }
 
 }
