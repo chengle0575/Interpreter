@@ -18,8 +18,8 @@ public class Parser {
         return expression();
     }
 
-    private boolean reachEnd(){
-        return this.p==this.input.size()-1;
+    private boolean reachEnd(int pt){
+        return pt==this.input.size()-1;
     }
 
     private boolean match(TokenType ty){
@@ -127,9 +127,25 @@ public class Parser {
        }
 
        if(match(TokenType.LEFT_BRACE)){
-            moveahead();
-            Expression exp=expression();
-            return new Grouping(exp);
+            //find the next right brace
+           int pt=this.input.size()-1;
+           while(pt>this.p){
+               if(this.input.get(pt).type==TokenType.RIGHT_BRACE){
+                   //find the outer brace
+                   break;
+               }
+               pt--;
+           }
+
+           moveahead();
+
+           if(pt>this.p&&pt==this.input.size()){
+               return new Grouping(expression());
+           } else if(pt>this.p){
+
+               return new Binary(new Grouping(expression()),this.input.get(pt+1),new Parser(this.input.subList(pt+2,this.input.size())).generateAST());
+           }
+
        }
        return null;
     }
