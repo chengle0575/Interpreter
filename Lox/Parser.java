@@ -18,6 +18,10 @@ public class Parser {
         return expression();
     }
 
+    private boolean reachEnd(){
+        return this.p==this.input.size()-1;
+    }
+
     private boolean match(TokenType ty){
         if(this.p>=this.input.size())
             return false;
@@ -94,6 +98,7 @@ public class Parser {
         System.out.println("current this.p is: "+this.p);
         if(match(TokenType.BANG)||match(TokenType.MINUS)){
             Token t=this.input.get(this.p);
+            moveahead();
             return new Unary(t,unary());
         }
 
