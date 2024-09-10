@@ -1,5 +1,7 @@
 package Lox;
 
+import Lox.Exp.Expression;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -53,6 +55,13 @@ public class Lox {
         for (Token token : scanner.tokenlist) {
             System.out.println(token);
         }
+
+        //put the tokenlist into parser
+        Parser parser=new Parser(scanner.tokenlist);
+        Expression exp=parser.generateAST();
+        AstPrinter ap=new AstPrinter(exp);
+        ap.generateString();
+
     }
 
     static void error(int line, String message) {

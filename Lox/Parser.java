@@ -14,24 +14,21 @@ public class Parser {
         this.input=input;
     }
 
-    /*
-    Expression generateAST(){
+    public Expression generateAST(){
+        return expression();
+    }
 
-        Token curtoken=this.input.get(p);
+    private boolean match(TokenType ty){
+        if(this.p>=this.input.size())
+            return false;
+        return this.input.get(this.p).type==ty;
+    }
 
-        if(match(TokenType.LEFT_PAREN)){
-
+    private void moveahead(){
+        this.p++;
+        while(this.p<this.input.size()&&match(TokenType.RIGHT_BRACE)){
+                this.p++;
         }
-    }
-
-     */
-
-    boolean match(TokenType ty){
-        return this.input.get(p).type==ty;
-    }
-
-    void moveahead(){
-        p++;
     }
 
     private Expression expression(){ //expression->equality
@@ -39,11 +36,11 @@ public class Parser {
     }
 
     private Expression equality(){//equality-> comparison (((!=|==) comparison))*
+        System.out.println("current this.p is: "+this.p);
         Expression exp=comparison();
 
         if(match(TokenType.BANG_EQUAL)||match(TokenType.EQUAL_EQUAL)){
-
-                Token t=this.input.get(p);
+                Token t=this.input.get(this.p);
                 moveahead();
                 Expression exp2= comparison();
                 exp=new Binary(exp,t,exp2);
@@ -53,25 +50,26 @@ public class Parser {
     }
 
     private  Expression comparison(){
+        System.out.println("current this.p is: "+this.p);
         Expression exp=term();
 
         if(match(TokenType.GREATER)||match(TokenType.GREATER_EQUAL)||match(TokenType.LESS)||match(TokenType.LESS_EQUAL)){
-            Token t=this.input.get(p);
+            Token t=this.input.get(this.p);
             moveahead();
             Expression exp2=term();
             exp=new Binary(exp,t,exp2);
         }
-
 
         return exp;
     }
 
 
     private Expression term(){
+        System.out.println("current this.p is: "+this.p);
         Expression exp=factor();
 
         if(match(TokenType.PLUS)||match(TokenType.MINUS)){
-            Token t=this.input.get(p);
+            Token t=this.input.get(this.p);
             moveahead();
             Expression exp2=factor();
             exp=new Binary(exp,t,exp2);
@@ -81,10 +79,11 @@ public class Parser {
     }
 
     private Expression factor(){
+        System.out.println("current this.p is: "+this.p);
         Expression exp=unary();
 
         if(match(TokenType.SLASH)||match(TokenType.STAR)){
-            Token t=this.input.get(p);
+            Token t=this.input.get(this.p);
             moveahead();
             Expression exp2=unary();
             exp=new Binary(exp,t,exp2);
@@ -95,8 +94,9 @@ public class Parser {
     }
 
     private Expression unary(){
+        System.out.println("current this.p is: "+this.p);
         if(match(TokenType.BANG)||match(TokenType.MINUS)){
-            Token t=this.input.get(p);
+            Token t=this.input.get(this.p);
             return new Unary(t,unary());
         }
 
@@ -104,17 +104,32 @@ public class Parser {
     }
 
     private Expression primary(){
-       if(match(TokenType.NUMBER)||match(TokenType.STRING))
-           return new Literal(this.input.get(p).literal);
-       if(match(TokenType.TRUE)) return new Literal(true);
-       if(match(TokenType.FALSE)) return new Literal(false);
-       if(match(TokenType.NIL)) return new Literal(null);
+        System.out.println("current this.p is: "+this.p);
+
+        if(match(TokenType.NUMBER)||match(TokenType.STRING)){
+            moveahead();
+            return new Literal(this.input.get(this.p-1).literal);
+        }
+
+       if(match(TokenType.TRUE)) {
+           moveahead();
+           return new Literal(true);
+       }
+       if(match(TokenType.FALSE)) {
+           moveahead();
+           return new Literal(false);
+       }
+       if(match(TokenType.NIL)){
+           moveahead();
+           return new Literal(null);
+       }
 
        if(match(TokenType.LEFT_BRACE)){
-            Expression exp=expression();
             moveahead();
+            Expression exp=expression();
             return new Grouping(exp);
        }
+       return null;
     }
 
 }
