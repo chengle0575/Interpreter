@@ -59,8 +59,8 @@ public class Lox {
         //put the tokenlist into parser
         Parser parser=new Parser(scanner.tokenlist);
         Expression exp=parser.generateAST();
-        AstPrinter ap=new AstPrinter(exp);
-        ap.generateString();
+        //AstPrinter ap=new AstPrinter(exp);
+        //ap.generateString();
 
     }
 

@@ -4,14 +4,13 @@ import Lox.Exp.*;
 
 public class AstPrinter {
 
-    Expression startExp;
 
-    AstPrinter(Expression ex){
-        this.startExp=ex;
+    public AstPrinter(){
+
     }
 
-    public void generateString(){
-        System.out.println(this.startExp.accept(new Printer()));
+    public void generateString(Expression ex){
+        System.out.println(ex.accept(new Printer()));
     }
 
 

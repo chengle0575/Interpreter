@@ -26,9 +26,6 @@ public class Parser {
 
     private void moveahead(){
         this.p++;
-        while(this.p<this.input.size()&&match(TokenType.RIGHT_BRACE)){
-                this.p++;
-        }
     }
 
     private Expression expression(){ //expression->equality
