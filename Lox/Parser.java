@@ -139,10 +139,9 @@ public class Parser {
 
            moveahead();
 
-           if(pt>this.p&&pt==this.input.size()){
+           if(pt>this.p && pt==this.input.size()-1){
                return new Grouping(expression());
            } else if(pt>this.p){
-
                return new Binary(new Grouping(expression()),this.input.get(pt+1),new Parser(this.input.subList(pt+2,this.input.size())).generateAST());
            }
 
