@@ -38,27 +38,31 @@ public class Scanner {
                     }
                     break;
                 case '=':
-                    if(matchAhead('='))
+                    if(matchAhead('=')){
                         addToken(TokenType.EQUAL_EQUAL);
-                    else
+                        pstart++;
+                    } else
                         addToken(TokenType.EQUAL);
                     break;
                 case '!':
-                    if(matchAhead('='))
+                    if(matchAhead('=')){
                         addToken(TokenType.BANG_EQUAL);
-                    else
+                        pstart++;
+                    } else
                         addToken(TokenType.BANG);
                     break;
                 case '>':
-                    if(matchAhead('='))
+                    if(matchAhead('=')){
                         addToken(TokenType.GREATER_EQUAL);
-                    else
+                        pstart++;
+                    } else
                         addToken(TokenType.GREATER);
                     break;
                 case '<':
-                    if(matchAhead('='))
+                    if(matchAhead('=')) {
                         addToken(TokenType.LESS_EQUAL);
-                    else
+                        pstart++;
+                    } else
                         addToken(TokenType.LESS);
                     break;
                 case '"':
