@@ -2,6 +2,7 @@ package Lox;
 
 import Lox.Exp.Expression;
 
+import javax.sound.midi.Soundbank;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,6 +16,7 @@ public class Lox {
     static boolean hadError = false;
 
     public static void main(String[] args) throws IOException {
+
         if (args.length > 1) {
             System.out.println("Usage: jlox [script]");
             System.exit(64);
@@ -34,6 +36,8 @@ public class Lox {
     }
 
     private static void runPrompt() throws IOException {
+
+        System.out.println("lox start");
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);
 
@@ -56,11 +60,16 @@ public class Lox {
             System.out.println(token);
         }
 
+
+
         //put the tokenlist into parser
         Parser parser=new Parser(scanner.tokenlist);
         Expression exp=parser.generateAST();
-        //AstPrinter ap=new AstPrinter(exp);
-        //ap.generateString();
+        AstPrinter ap=new AstPrinter();
+        ap.generateString(exp);
+
+        Interpreter ip=new Interpreter();
+        System.out.println(ip.evaluate(exp));
 
     }
 

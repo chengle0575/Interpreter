@@ -107,11 +107,15 @@ public class Parser {
 
     private Expression primary(){
 
-        if(match(TokenType.NUMBER)||match(TokenType.STRING)){
+        if(match(TokenType.NUMBER)){
+            moveahead();
+            return new Literal((double)Integer.parseInt(this.input.get(this.p-1).literal));
+        }
+
+        if(match(TokenType.STRING)){
             moveahead();
             return new Literal(this.input.get(this.p-1).literal);
         }
-
        if(match(TokenType.TRUE)) {
            moveahead();
            return new Literal(true);
