@@ -149,7 +149,7 @@ public class Scanner {
         int end=pend+1;
 
         pstart=pend+1;
-        return source.substring(start,end);
+        return source.substring(start+1,end);
     }
 
     public String getNumber(){
