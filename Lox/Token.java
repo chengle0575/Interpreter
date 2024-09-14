@@ -5,19 +5,22 @@ import java.util.HashMap;
 public class Token {
     TokenType type;
     String literal;
+    int line;
 
 
     public final static HashMap<String,TokenType> reserveKeywordsMap=createReservedKeywordsMap();
 
 
-    public Token(TokenType t){
+    public Token(TokenType t,int line){
         this.type=t;
         this.literal="";
+        this.line=line;
     }
 
-    public Token(TokenType t, String literal){
+    public Token(TokenType t, String literal,int line){
         this.type=t;
         this.literal=literal;
+        this.line=line;
     }
 
 

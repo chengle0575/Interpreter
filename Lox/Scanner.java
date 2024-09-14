@@ -20,54 +20,54 @@ public class Scanner {
 
         while (pend<source.length()){
             switch (source.charAt(pstart)){
-                case '{': addToken(TokenType.LEFT_PAREN);break;
-                case '}': addToken(TokenType.RIGHT_PAREN);break;
-                case '(': addToken(TokenType.LEFT_BRACE);break;
-                case ')': addToken(TokenType.RIGHT_BRACE);break;
-                case ',': addToken(TokenType.COMMA);break;
-                case '.': addToken(TokenType.DOT);break;
-                case '-': addToken(TokenType.MINUS);break;
-                case '+': addToken(TokenType.PLUS);break;
-                case ';': addToken(TokenType.SEMICOLON);break;
-                case '*': addToken(TokenType.STAR);break;
+                case '{': addToken(TokenType.LEFT_PAREN,line);break;
+                case '}': addToken(TokenType.RIGHT_PAREN,line);break;
+                case '(': addToken(TokenType.LEFT_BRACE,line);break;
+                case ')': addToken(TokenType.RIGHT_BRACE,line);break;
+                case ',': addToken(TokenType.COMMA,line);break;
+                case '.': addToken(TokenType.DOT,line);break;
+                case '-': addToken(TokenType.MINUS,line);break;
+                case '+': addToken(TokenType.PLUS,line);break;
+                case ';': addToken(TokenType.SEMICOLON,line);break;
+                case '*': addToken(TokenType.STAR,line);break;
                 case '/':
                     if(matchAhead('/')){//follows comments whose content should be ignored
                         exhaustComment();
                     }else{
-                        addToken(TokenType.SLASH);
+                        addToken(TokenType.SLASH,line);
                     }
                     break;
                 case '=':
                     if(matchAhead('=')){
-                        addToken(TokenType.EQUAL_EQUAL);
+                        addToken(TokenType.EQUAL_EQUAL,line);
                         pstart++;
                     } else
-                        addToken(TokenType.EQUAL);
+                        addToken(TokenType.EQUAL,line);
                     break;
                 case '!':
                     if(matchAhead('=')){
-                        addToken(TokenType.BANG_EQUAL);
+                        addToken(TokenType.BANG_EQUAL,line);
                         pstart++;
                     } else
-                        addToken(TokenType.BANG);
+                        addToken(TokenType.BANG,line);
                     break;
                 case '>':
                     if(matchAhead('=')){
-                        addToken(TokenType.GREATER_EQUAL);
+                        addToken(TokenType.GREATER_EQUAL,line);
                         pstart++;
                     } else
-                        addToken(TokenType.GREATER);
+                        addToken(TokenType.GREATER,line);
                     break;
                 case '<':
                     if(matchAhead('=')) {
-                        addToken(TokenType.LESS_EQUAL);
+                        addToken(TokenType.LESS_EQUAL,line);
                         pstart++;
                     } else
-                        addToken(TokenType.LESS);
+                        addToken(TokenType.LESS,line);
                     break;
                 case '"':
                     String s=getString();
-                    addToken(TokenType.STRING,s);
+                    addToken(TokenType.STRING,s,line);
                     break;
                 case ' ':
                     break;
@@ -78,14 +78,14 @@ public class Scanner {
                     if(Character.isDigit(source.charAt(pstart))){
                         String numliteral=getNumber();
                         pstart=pend;
-                        addToken(TokenType.NUMBER,numliteral);
+                        addToken(TokenType.NUMBER,numliteral,line);
                     }else if(Character.isAlphabetic(source.charAt(pstart))||source.charAt(pstart)=='_'){ //key idea here: 1.keywords are reserved identifier 2.the match should follow maximal munch principle
                         String identifierLiteral=getIdentifier();
                         pstart=pend;
                         if(isReservedKeywords(identifierLiteral)!=null){
-                            addToken(isReservedKeywords(identifierLiteral));
+                            addToken(isReservedKeywords(identifierLiteral),line);
                         }else{
-                            addToken(TokenType.IDENTIFIER,identifierLiteral);
+                            addToken(TokenType.IDENTIFIER,identifierLiteral,line);
                         }
                     }else{//inexpected character, for example: @,$
                         Lox.error(line,"Unexpected Input");
@@ -98,11 +98,11 @@ public class Scanner {
     }
 
 
-    public void addToken(TokenType tokentype){
-        tokenlist.add(new Token(tokentype));
+    public void addToken(TokenType tokentype, int line){
+        tokenlist.add(new Token(tokentype,line));
     }
-    public void addToken(TokenType tokentype,String literal){
-        tokenlist.add(new Token(tokentype,literal));
+    public void addToken(TokenType tokentype,String literal,int line){
+        tokenlist.add(new Token(tokentype,literal,line));
     }
 
 
