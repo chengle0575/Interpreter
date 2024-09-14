@@ -11,6 +11,11 @@ public class Token {
     public final static HashMap<String,TokenType> reserveKeywordsMap=createReservedKeywordsMap();
 
 
+    public Token(TokenType t){
+        this.type=t;
+        this.literal="";
+    }
+
     public Token(TokenType t,int line){
         this.type=t;
         this.literal="";

@@ -148,6 +148,9 @@ public class Parser {
            }
 
        }
+
+       Lox.error(this.input.get(this.p-1).line,"Parser Error: invalid "+this.input.get(this.p-1).type.toString());
+
        return null;
     }
 

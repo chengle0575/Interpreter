@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 public class Lox {
 
     static boolean hadError = false;
+    static boolean hasRuntimeError=false;
 
     public static void main(String[] args) throws IOException {
 
@@ -48,6 +49,8 @@ public class Lox {
             run(line);
 
             hadError = false;
+            //if(hadError==true) System.exit(23);
+            if(hasRuntimeError==true) System.exit(56);
         }
     }
 
@@ -64,12 +67,18 @@ public class Lox {
 
         //put the tokenlist into parser
         Parser parser=new Parser(scanner.tokenlist);
-        Expression exp=parser.generateAST();
+        Expression expTree=parser.generateAST();
         AstPrinter ap=new AstPrinter();
-        ap.generateString(exp);
+        ap.generateString(expTree);
 
-        Interpreter ip=new Interpreter();
-        System.out.println(ip.evaluate(exp));
+        Interpreter interpreter=new Interpreter();
+        try{
+            System.out.println(interpreter.evaluate(expTree));
+        }catch (RuntimeError e){
+            hasRuntimeError=true;
+            System.out.println(e);
+        }
+
 
     }
 
