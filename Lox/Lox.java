@@ -49,8 +49,7 @@ public class Lox {
             run(line);
 
             hadError = false;
-            //if(hadError==true) System.exit(23);
-            if(hasRuntimeError==true) System.exit(56);
+
         }
     }
 

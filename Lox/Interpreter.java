@@ -55,6 +55,7 @@ public class Interpreter implements Visitor {
                 return (double)left/(double) right;
             case STAR:
                 checkNumOperands(left,right);
+                checkZeroDivision(right);
                 return (double)left*(double) right;
             case GREATER:
                 checkNumOperands(left,right);
@@ -85,14 +86,17 @@ public class Interpreter implements Visitor {
 
     private void checkNumOperand(Object operand){
         if(operand instanceof Double) return;
-        throw new RuntimeError("Runtime Error: the operand in not a number");
+        throw new RuntimeError("the operand in not a number");
 
     }
     
     private void checkNumOperands(Object left,Object right){
         if(left instanceof Double && right instanceof Double) return;
-        throw new RuntimeException("Runtime Error: both the operands are not number");
+        throw new RuntimeException("both the operands are not number");
     }
     
-
+    private void checkZeroDivision(Object right){
+        if(right instanceof Double && (Double)right==0)
+            throw new RuntimeException("Cannot divide by zero");
+    }
 }
