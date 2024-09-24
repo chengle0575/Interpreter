@@ -1,35 +1,52 @@
 package Lox;
 
 import Lox.Exp.*;
+import Lox.Statement.ExprStmt;
+import Lox.Statement.PrintStmt;
+import Lox.Statement.Stmt;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Parser {
 
     List<Token> input;
     int p=0;
-
+    List<Stmt> stmts;
+    //List<Expression> programExpTrees;
 
     Parser(List<Token> input){
         this.input=input;
+        stmts=new ArrayList<>();
     }
 
+    public void splitStmt(){
+        int n=input.size();
+        int lptr=0;
+        for(int i=0;i<n;i++){
+            if(input.get(i).type==TokenType.SEMICOLON){
+                if(isPrintStmt(lptr))
+                    stmts.add(printStmt(this.input.subList(lptr,i)));
+                else
+                    stmts.add(expreStmt(this.input.subList(lptr,i)));
+                lptr=i+1;
+            }
+        }
+    }
+
+    private Stmt printStmt(List<Token> l){
+        return new PrintStmt(new Parser(l).expression());
+    }
+
+    private Stmt expreStmt(List<Token> l){
+        return new ExprStmt(new Parser(l).expression());
+    }
+
+
+
+    //methods to generate expression tree
     public Expression generateAST(){
         return expression();
-    }
-
-    private boolean reachEnd(int pt){
-        return pt==this.input.size()-1;
-    }
-
-    private boolean match(TokenType ty){
-        if(this.p>=this.input.size())
-            return false;
-        return this.input.get(this.p).type==ty;
-    }
-
-    private void moveahead(){
-        this.p++;
     }
 
     private Expression expression(){ //expression->equality
@@ -152,6 +169,27 @@ public class Parser {
        Lox.error(this.input.get(this.p-1).line,"Parser Error: invalid "+this.input.get(this.p-1).type.toString());
 
        return null;
+    }
+
+
+    //helper fundtions here
+    private boolean reachEnd(int pt){
+        return pt==this.input.size()-1;
+    }
+
+    private boolean match(TokenType ty){
+        if(this.p>=this.input.size())
+            return false;
+        return this.input.get(this.p).type==ty;
+    }
+
+    private void moveahead(){
+        this.p++;
+    }
+
+    private boolean isPrintStmt(int i){
+        if(this.input.get(i).type==TokenType.PRINT) return true;
+        return false;
     }
 
 }

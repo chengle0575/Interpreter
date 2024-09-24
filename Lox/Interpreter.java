@@ -27,7 +27,7 @@ public class Interpreter implements Visitor {
 
         switch (unary.operator.type){
             case MINUS:
-                checkNumOperand(right);
+                checkNumOperand(unary.operator,right);
                 return -(double)right;
             case BANG:
                 return !isTruth(right);
@@ -46,28 +46,28 @@ public class Interpreter implements Visitor {
                     return (double)left+(double)right;
                 if(left instanceof String && right instanceof String)
                     return (String)left+(String)right;
-                throw new RuntimeException("Runtime error: Two operands should both be number of string");
+                throw new RuntimeError(binary.operator,"Two operands should both be number of string");
             case MINUS:
-                checkNumOperands(left,right);
+                checkNumOperands(binary.operator,left,right);
                 return (double)left-(double)right;
             case SLASH:
-                checkNumOperands(left,right);
+                checkNumOperands(binary.operator,left,right);
+                checkZeroDivision(binary.operator,right);
                 return (double)left/(double) right;
             case STAR:
-                checkNumOperands(left,right);
-                checkZeroDivision(right);
+                checkNumOperands(binary.operator,left,right);
                 return (double)left*(double) right;
             case GREATER:
-                checkNumOperands(left,right);
+                checkNumOperands(binary.operator,left,right);
                 return (double)left>(double) right;
             case GREATER_EQUAL:
-                checkNumOperands(left,right);
+                checkNumOperands(binary.operator,left,right);
                 return (double)left>=(double) right;
             case LESS:
-                checkNumOperands(left,right);
+                checkNumOperands(binary.operator,left,right);
                 return (double)left<(double) right;
             case LESS_EQUAL:
-                checkNumOperands(left,right);
+                checkNumOperands(binary.operator,left,right);
                 return (double)left<=(double) right;
             case BANG_EQUAL:
                 return !Objects.equals(left,right);
@@ -84,19 +84,19 @@ public class Interpreter implements Visitor {
 
 
 
-    private void checkNumOperand(Object operand){
+    private void checkNumOperand(Token operator,Object operand){
         if(operand instanceof Double) return;
-        throw new RuntimeError("the operand in not a number");
+        throw new RuntimeError(operator,"The operand in not a number");
 
     }
     
-    private void checkNumOperands(Object left,Object right){
+    private void checkNumOperands(Token operator,Object left,Object right){
         if(left instanceof Double && right instanceof Double) return;
-        throw new RuntimeException("both the operands are not number");
+        throw new RuntimeError(operator,"Both the operands should be number");
     }
     
-    private void checkZeroDivision(Object right){
+    private void checkZeroDivision(Token operator,Object right){
         if(right instanceof Double && (Double)right==0)
-            throw new RuntimeException("Cannot divide by zero");
+            throw new RuntimeError(operator,"Cannot divide by zero");
     }
 }

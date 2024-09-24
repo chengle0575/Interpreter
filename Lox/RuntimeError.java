@@ -7,7 +7,8 @@ public class RuntimeError extends RuntimeException{
 
     }
 
-    public RuntimeError(String s){
-        super(s);
+    public RuntimeError(Token t,String s){
+        super("[line "+t.line+"]"+" around "+t.toString()+" operator :"+s);
     }
+
 }
