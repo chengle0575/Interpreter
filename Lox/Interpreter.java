@@ -5,17 +5,25 @@ import Lox.Statement.ExprStmt;
 import Lox.Statement.PrintStmt;
 import Lox.Statement.Stmt;
 
+import java.util.List;
 import java.util.Objects;
 
 public class Interpreter implements Visitor {
-    public Object evaluateStatement(Stmt stmt){
+
+    public Object execute(List<Stmt> stmtlist){
+        for(Stmt stmt:stmtlist){
+            evaluateStatement(stmt);
+        }
+        return  null;
+    }
+    private Object evaluateStatement(Stmt stmt){
         return stmt.accept(this);
     }
-    public Object evaluateExpression(Expression exp){
+    private Object evaluateExpression(Expression exp){
         return exp.accept(this);
     }
 
-    public static boolean isTruth(Object o){
+    private static boolean isTruth(Object o){
         if(Objects.equals(o,null)|| Objects.equals(o,false))
             return false;
         return true;
@@ -28,6 +36,8 @@ public class Interpreter implements Visitor {
             return null;
         } else if (stmt instanceof ExprStmt){
             Expression exp=stmt.getExp();
+            String res=evaluateExpression(exp).toString();
+            System.out.println("expression stmt result:"+res);
             return evaluateExpression(exp);
         }
 

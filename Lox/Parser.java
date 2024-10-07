@@ -25,7 +25,8 @@ public class Parser {
 
 
     public List<Stmt> generateStmts(){
-
+        if(this.input.get(this.input.size()-1).type!=TokenType.SEMICOLON)
+            this.input.add(new Token(TokenType.SEMICOLON));
         while(!reachEnd(p)){
             stmts.add(statement());
         }
