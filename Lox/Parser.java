@@ -37,6 +37,16 @@ public class Parser {
             }
         }
 
+        //deal with situatioin when ';' semicolom is neglected in the end
+        if(this.input.get(this.input.size()-1).type!=TokenType.SEMICOLON){
+            List<Token> expressionInStatement=this.input.subList(lptr,this.input.size());
+            Parser innerParserForEachExpression=new Parser(expressionInStatement);
+            if(isPrintStmt(lptr))
+                stmts.add(new PrintStmt(innerParserForEachExpression.generateAST()));
+            else
+                stmts.add(new ExprStmt(innerParserForEachExpression.generateAST()));
+        }
+
         return this.stmts;
     }
 
@@ -44,6 +54,7 @@ public class Parser {
 
     //methods to generate expression tree
     public Expression generateAST(){
+        System.out.println("this is token list"+this.input);
         return expression();
     }
 
