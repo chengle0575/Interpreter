@@ -5,15 +5,17 @@ import Lox.Statement.ExprStmt;
 import Lox.Statement.PrintStmt;
 import Lox.Statement.Stmt;
 
-import java.util.ArrayList;
+import java.security.PublicKey;
 import java.util.List;
+import java.util.ArrayList;
+
 
 public class Parser {
 
     List<Token> input;
     int p=0;
     List<Stmt> stmts;
-
+    //HashMap<String,Expression> variable_valueMap;
 
     Parser(List<Token> input){
         this.input=input;
@@ -21,13 +23,12 @@ public class Parser {
     }
 
     // fill the list of stmts using tokens from this piece of code
+    /*
     public List<Stmt> splitStmt(){
         int n=input.size();
         int lptr=0;
         for(int i=0;i<n;i++){
             if(input.get(i).type==TokenType.SEMICOLON){
-
-
                 if(isPrintStmt(lptr)){
                     List<Token> expressionInStatement=this.input.subList(lptr+1,i);
                     Parser innerParserForEachExpression=new Parser(expressionInStatement);
@@ -68,10 +69,39 @@ public class Parser {
 
 
     //methods to generate expression tree
+
     public Expression generateAST(){
         System.out.println("this is token list"+this.input);
         return expression();
+    }*/
+
+
+    public List<Stmt> generateStmts(){
+
+        while(!reachEnd(p)){
+            stmts.add(statement());
+        }
+
+        return stmts;
     }
+
+    private Stmt statement(){
+        if(match(TokenType.PRINT)) return printStatement();
+        return expressionStatement();
+    }
+
+    private PrintStmt printStatement(){
+        moveahead(); //ignore this print identifier
+        return new PrintStmt(parseExpressionInStatement(p));
+    }
+
+    private  ExprStmt expressionStatement(){
+        return new ExprStmt(parseExpressionInStatement(p));
+    }
+
+
+
+
 
     private Expression expression(){ //expression->equality
         return equality();
@@ -182,9 +212,9 @@ public class Parser {
            moveahead();
 
            if(pt>this.p && pt==this.input.size()-1){
-               return new Grouping(new Parser(this.input.subList(p,pt)).generateAST());
+               return new Grouping(new Parser(this.input.subList(p,pt)).expression());
            } else if(pt>this.p){
-               return new Binary(new Grouping(expression()),this.input.get(pt+1),new Parser(this.input.subList(pt+2,this.input.size())).generateAST());
+               return new Binary(new Grouping(expression()),this.input.get(pt+1),new Parser(this.input.subList(pt+2,this.input.size())).expression());
            }
 
        }
@@ -197,7 +227,7 @@ public class Parser {
 
     //helper fundtions here
     private boolean reachEnd(int pt){
-        return pt==this.input.size()-1;
+        return pt>=this.input.size()-1;
     }
 
     private boolean match(TokenType ty){
@@ -213,6 +243,18 @@ public class Parser {
     private boolean isPrintStmt(int i){
         if(this.input.get(i).type==TokenType.PRINT) return true;
         return false;
+    }
+
+    private Expression parseExpressionInStatement(int p){
+        int pend=p+1;
+        while(this.input.get(pend).type!=TokenType.SEMICOLON){
+            pend++;
+        }
+
+        Parser innerparser=new Parser(this.input.subList(p,pend));
+
+        this.p=pend+1;
+        return innerparser.expression();
     }
 
 }

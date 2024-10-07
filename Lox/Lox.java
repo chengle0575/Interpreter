@@ -72,7 +72,7 @@ public class Lox {
 
         Parser parser=new Parser(scanner.tokenlist);
 
-        List<Stmt> statmentList=parser.splitStmt();
+        List<Stmt> statmentList=parser.generateStmts();
 
 
 /*
