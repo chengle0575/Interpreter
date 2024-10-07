@@ -8,4 +8,8 @@ public class ExprStmt extends Stmt{
     public ExprStmt(Expression exp){
         this.exp=exp;
     }
+
+    public Expression getExp(){
+        return this.exp;
+    }
 }

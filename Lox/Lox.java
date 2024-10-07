@@ -74,6 +74,15 @@ public class Lox {
 
         List<Stmt> statmentList=parser.generateStmts();
 
+        Interpreter interpreter=new Interpreter();
+
+        for(Stmt stmt:statmentList){
+           // stmt.getExp();
+            //evaluate ,interpret each statement one by one
+           if(interpreter.evaluateStatement(stmt)!=null){
+               System.out.println("expression result:"+interpreter.evaluateStatement(stmt));
+           };
+        }
 
 /*
         AstPrinter ap=new AstPrinter();

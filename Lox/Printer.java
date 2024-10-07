@@ -1,6 +1,7 @@
 package Lox;
 
 import Lox.Exp.*;
+import Lox.Statement.Stmt;
 
 public class Printer implements Visitor {
 
@@ -54,5 +55,10 @@ public class Printer implements Visitor {
         sb.append(" ".repeat(space)+"/literal --");
         sb.append(" ".repeat(space)+literal.value.toString()+"\n");
         return sb.toString();
+    }
+
+    @Override
+    public Object visit(Stmt stmt) {
+        return null;
     }
 }

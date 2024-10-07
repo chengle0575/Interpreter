@@ -1,12 +1,17 @@
 package Lox;
 
 import Lox.Exp.*;
+import Lox.Statement.ExprStmt;
+import Lox.Statement.PrintStmt;
+import Lox.Statement.Stmt;
 
 import java.util.Objects;
 
 public class Interpreter implements Visitor {
-
-    public Object evaluate(Expression exp){
+    public Object evaluateStatement(Stmt stmt){
+        return stmt.accept(this);
+    }
+    public Object evaluateExpression(Expression exp){
         return exp.accept(this);
     }
 
@@ -17,13 +22,28 @@ public class Interpreter implements Visitor {
     }
 
     @Override
+    public Object visit(Stmt stmt) {
+        if(stmt instanceof PrintStmt) {
+            System.out.println(evaluateExpression(stmt.getExp()));
+            return null;
+        } else if (stmt instanceof ExprStmt){
+            Expression exp=stmt.getExp();
+            return evaluateExpression(exp);
+        }
+
+
+        return null;
+    }
+
+
+    @Override
     public Object visit(Grouping grouping) {
-        return evaluate(grouping.exp);
+        return evaluateExpression(grouping.exp);
     }
 
     @Override
     public Object visit(Unary unary) {
-        Object right=evaluate(unary.right);
+        Object right=evaluateExpression(unary.right);
 
         switch (unary.operator.type){
             case MINUS:
@@ -37,8 +57,8 @@ public class Interpreter implements Visitor {
 
     @Override
     public Object visit(Binary binary) {
-        Object left=evaluate(binary.left);
-        Object right=evaluate(binary.right);
+        Object left=evaluateExpression(binary.left);
+        Object right=evaluateExpression(binary.right);
 
         switch(binary.operator.type){
             case PLUS: //the '+' operator can be used for both add values and concat strings
@@ -81,6 +101,7 @@ public class Interpreter implements Visitor {
     public Object visit(Literal literal) {
         return literal.value; //convert a tree node into a runtime value
     }
+
 
 
 

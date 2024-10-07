@@ -22,58 +22,6 @@ public class Parser {
         stmts=new ArrayList<>();
     }
 
-    // fill the list of stmts using tokens from this piece of code
-    /*
-    public List<Stmt> splitStmt(){
-        int n=input.size();
-        int lptr=0;
-        for(int i=0;i<n;i++){
-            if(input.get(i).type==TokenType.SEMICOLON){
-                if(isPrintStmt(lptr)){
-                    List<Token> expressionInStatement=this.input.subList(lptr+1,i);
-                    Parser innerParserForEachExpression=new Parser(expressionInStatement);
-
-                    stmts.add(new PrintStmt(innerParserForEachExpression.generateAST()));
-                }
-                else{
-                    List<Token> expressionInStatement=this.input.subList(lptr,i);
-                    Parser innerParserForEachExpression=new Parser(expressionInStatement);
-
-                    stmts.add(new ExprStmt(innerParserForEachExpression.generateAST()));
-                }
-
-                lptr=i+1;
-            }
-        }
-
-        //deal with situatioin when ';' semicolon is neglected in the end
-        if(this.input.get(this.input.size()-1).type!=TokenType.SEMICOLON){
-
-            if(isPrintStmt(lptr)){
-                List<Token> expressionInStatement=this.input.subList(lptr+1,this.input.size());
-                Parser innerParserForEachExpression=new Parser(expressionInStatement);
-                stmts.add(new PrintStmt(innerParserForEachExpression.generateAST()));
-            }
-
-            else{
-                List<Token> expressionInStatement=this.input.subList(lptr,this.input.size());
-                Parser innerParserForEachExpression=new Parser(expressionInStatement);
-                stmts.add(new ExprStmt(innerParserForEachExpression.generateAST()));
-            }
-
-        }
-
-        return this.stmts;
-    }
-
-
-
-    //methods to generate expression tree
-
-    public Expression generateAST(){
-        System.out.println("this is token list"+this.input);
-        return expression();
-    }*/
 
 
     public List<Stmt> generateStmts(){
