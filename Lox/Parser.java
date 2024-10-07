@@ -13,33 +13,31 @@ public class Parser {
     List<Token> input;
     int p=0;
     List<Stmt> stmts;
-    //List<Expression> programExpTrees;
+
 
     Parser(List<Token> input){
         this.input=input;
         stmts=new ArrayList<>();
     }
 
-    public void splitStmt(){
+    // fill the list of stmts using tokens from this piece of code
+    public List<Stmt> splitStmt(){
         int n=input.size();
         int lptr=0;
         for(int i=0;i<n;i++){
             if(input.get(i).type==TokenType.SEMICOLON){
+                List<Token> expressionInStatement=this.input.subList(lptr,i);
+                Parser innerParserForEachExpression=new Parser(expressionInStatement);
+
                 if(isPrintStmt(lptr))
-                    stmts.add(printStmt(this.input.subList(lptr,i)));
+                    stmts.add(new PrintStmt(innerParserForEachExpression.generateAST()));
                 else
-                    stmts.add(expreStmt(this.input.subList(lptr,i)));
+                    stmts.add(new ExprStmt(innerParserForEachExpression.generateAST()));
                 lptr=i+1;
             }
         }
-    }
 
-    private Stmt printStmt(List<Token> l){
-        return new PrintStmt(new Parser(l).expression());
-    }
-
-    private Stmt expreStmt(List<Token> l){
-        return new ExprStmt(new Parser(l).expression());
+        return this.stmts;
     }
 
 
@@ -80,7 +78,6 @@ public class Parser {
 
         return exp;
     }
-
 
     private Expression term(){
 
