@@ -172,7 +172,7 @@ public class Scanner {
         while(pend<source.length()-1&&isAlphaNumerical(source.charAt(pend))){
             pend++;
         }
-        return source.substring(pstart,pend+1);
+        return source.substring(pstart,pend);
     }
 
 

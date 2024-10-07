@@ -26,18 +26,26 @@ public class Parser {
         int lptr=0;
         for(int i=0;i<n;i++){
             if(input.get(i).type==TokenType.SEMICOLON){
-                List<Token> expressionInStatement=this.input.subList(lptr,i);
-                Parser innerParserForEachExpression=new Parser(expressionInStatement);
 
-                if(isPrintStmt(lptr))
+
+                if(isPrintStmt(lptr)){
+                    List<Token> expressionInStatement=this.input.subList(lptr+1,i);
+                    Parser innerParserForEachExpression=new Parser(expressionInStatement);
+
                     stmts.add(new PrintStmt(innerParserForEachExpression.generateAST()));
-                else
+                }
+                else{
+                    List<Token> expressionInStatement=this.input.subList(lptr,i);
+                    Parser innerParserForEachExpression=new Parser(expressionInStatement);
+
                     stmts.add(new ExprStmt(innerParserForEachExpression.generateAST()));
+                }
+
                 lptr=i+1;
             }
         }
 
-        //deal with situatioin when ';' semicolom is neglected in the end
+        //deal with situatioin when ';' semicolon is neglected in the end
         if(this.input.get(this.input.size()-1).type!=TokenType.SEMICOLON){
             List<Token> expressionInStatement=this.input.subList(lptr,this.input.size());
             Parser innerParserForEachExpression=new Parser(expressionInStatement);
