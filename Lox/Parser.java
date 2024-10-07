@@ -47,12 +47,19 @@ public class Parser {
 
         //deal with situatioin when ';' semicolon is neglected in the end
         if(this.input.get(this.input.size()-1).type!=TokenType.SEMICOLON){
-            List<Token> expressionInStatement=this.input.subList(lptr,this.input.size());
-            Parser innerParserForEachExpression=new Parser(expressionInStatement);
-            if(isPrintStmt(lptr))
+
+            if(isPrintStmt(lptr)){
+                List<Token> expressionInStatement=this.input.subList(lptr+1,this.input.size());
+                Parser innerParserForEachExpression=new Parser(expressionInStatement);
                 stmts.add(new PrintStmt(innerParserForEachExpression.generateAST()));
-            else
+            }
+
+            else{
+                List<Token> expressionInStatement=this.input.subList(lptr,this.input.size());
+                Parser innerParserForEachExpression=new Parser(expressionInStatement);
                 stmts.add(new ExprStmt(innerParserForEachExpression.generateAST()));
+            }
+
         }
 
         return this.stmts;
