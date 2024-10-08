@@ -35,16 +35,27 @@ public class Parser {
     }
 
     private Stmt declaration(){
-        if(match(TokenType.VAR)) return valDecl();
-        return statement();
+        try{
+            if(match(TokenType.VAR)) return valDecl();
+            return statement();
+        }catch (ParseError e){
+            System.out.println(e);
+            //update pointer p to be ready for the next declaration to parse
+            panicRecoverFromError();
+        }
+
+        return null;
+
     }
+
+
 
     private Stmt valDecl(){
         moveahead(); //consume the 'var' keyword;
         Token identifier=this.input.get(p);
         p++;
         if(!this.input.get(p).type.equals(TokenType.EQUAL))// is an assigenment error
-            throw new ParseError("Assignment has to use '=' ");
+            throw new ParseError("[line "+this.input.get(p).line+"] Assignment has to use '=' ");
 
         p++;
         return new VarStmt(identifier,parseExpressionInStatement(p));
@@ -184,9 +195,9 @@ public class Parser {
 
        }
 
-       Lox.error(this.input.get(this.p-1).line,"Parser Error: invalid "+this.input.get(this.p-1).type.toString());
+       throw new ParseError(this.input.get(this.p-1).line+"Parser Error: invalid "+this.input.get(this.p-1).type.toString());
 
-       return null;
+
     }
 
 
@@ -222,4 +233,11 @@ public class Parser {
         return innerparser.expression();
     }
 
+
+    private void panicRecoverFromError(){
+        while(this.input.get(p).type!=TokenType.SEMICOLON){
+            p++;
+        }
+        p++;
+    }
 }

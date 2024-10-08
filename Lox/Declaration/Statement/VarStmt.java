@@ -1,6 +1,7 @@
 package Lox.Declaration.Statement;
 
 import Lox.Exp.Expression;
+import Lox.Exp.Visitor;
 import Lox.Token;
 
 public class VarStmt extends Stmt{
@@ -18,5 +19,9 @@ public class VarStmt extends Stmt{
 
     public Expression getExp() {
         return exp;
+    }
+
+    public Object accept(Visitor v){
+        return v.visit(this);
     }
 }

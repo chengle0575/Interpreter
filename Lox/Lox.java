@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -67,12 +68,9 @@ public class Lox {
         //
 
         Parser parser=new Parser(scanner.tokenlist);
-        try{
-            List<Stmt> statmentList=parser.generateStmts();
-        }catch (ParseError e){
-            System.out.println(e);
-        }
+        List<Stmt> statmentList=parser.generateStmts();
 
+        System.out.println("number of lines parsed: "+statmentList.size());
 
 
 

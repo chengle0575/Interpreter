@@ -1,5 +1,6 @@
 package Lox;
 
+import Lox.Declaration.Statement.VarStmt;
 import Lox.Exp.*;
 import Lox.Declaration.Statement.ExprStmt;
 import Lox.Declaration.Statement.PrintStmt;
@@ -9,6 +10,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class Interpreter implements Visitor {
+
+    private Environment env=new Environment();
 
     public Object execute(List<Stmt> stmtlist){
         for(Stmt stmt:stmtlist){
@@ -29,6 +32,8 @@ public class Interpreter implements Visitor {
         return true;
     }
 
+
+
     @Override
     public Object visit(Stmt stmt) {
         if(stmt instanceof PrintStmt) {
@@ -39,6 +44,9 @@ public class Interpreter implements Visitor {
             String res=evaluateExpression(exp).toString();
             System.out.println("expression stmt result:"+res);
             return evaluateExpression(exp);
+        } else if (stmt instanceof VarStmt){
+            //assign the value to the identifier, save in memory
+            env.assign(((VarStmt) stmt).getIdentifier().literal, evaluateExpression(stmt.getExp()));
         }
 
 
