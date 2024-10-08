@@ -36,6 +36,7 @@ public class Interpreter implements Visitor {
 
     @Override
     public Object visit(Stmt stmt) {
+
         if(stmt instanceof PrintStmt) {
             System.out.println(evaluateExpression(stmt.getExp()));
             return null;
@@ -44,10 +45,11 @@ public class Interpreter implements Visitor {
             String res=evaluateExpression(exp).toString();
             System.out.println("expression stmt result:"+res);
             return evaluateExpression(exp);
-        } else if (stmt instanceof VarStmt){
+        }
+        //else if (stmt instanceof VarStmt){
             //assign the value to the identifier, save in memory
             env.assign(((VarStmt) stmt).getIdentifier().literal, evaluateExpression(stmt.getExp()));
-        }
+        //}
 
 
         return null;
@@ -113,6 +115,11 @@ public class Interpreter implements Visitor {
                 return Objects.equals(left,right);
         }
         return null;
+    }
+
+    @Override
+    public Object visit(Variable variable) {
+        return env.get(variable.name);
     }
 
     @Override

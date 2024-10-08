@@ -49,6 +49,11 @@ public class Printer implements Visitor {
     }
 
     @Override
+    public Object visit(Variable variable) {
+        return null;
+    }
+
+    @Override
     public String visit(Literal literal) {
         space++;
         StringBuffer sb=new StringBuffer();

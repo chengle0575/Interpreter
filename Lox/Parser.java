@@ -45,20 +45,24 @@ public class Parser {
         }
 
         return null;
-
     }
 
 
 
     private Stmt valDecl(){
         moveahead(); //consume the 'var' keyword;
-        Token identifier=this.input.get(p);
+        //Token identifier=this.input.get(p);
+        /*
         p++;
         if(!this.input.get(p).type.equals(TokenType.EQUAL))// is an assigenment error
             throw new ParseError("[line "+this.input.get(p).line+"] Assignment has to use '=' ");
 
         p++;
         return new VarStmt(identifier,parseExpressionInStatement(p));
+
+         */
+        //p++;
+        return expressionStatement();
     }
 
     private Stmt statement(){
@@ -153,6 +157,10 @@ public class Parser {
 
     private Expression primary(){
 
+        if(match(TokenType.IDENTIFIER)){
+            moveahead();
+            return new Variable(this.input.get(this.p-1));
+        }
         if(match(TokenType.NUMBER)){
             moveahead();
             return new Literal((double)Integer.parseInt(this.input.get(this.p-1).literal));
@@ -196,8 +204,6 @@ public class Parser {
        }
 
        throw new ParseError(this.input.get(this.p-1).line+"Parser Error: invalid "+this.input.get(this.p-1).type.toString());
-
-
     }
 
 
