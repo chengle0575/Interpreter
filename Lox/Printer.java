@@ -1,7 +1,7 @@
 package Lox;
 
 import Lox.Exp.*;
-import Lox.Statement.Stmt;
+import Lox.Declaration.Statement.Stmt;
 
 public class Printer implements Visitor {
 

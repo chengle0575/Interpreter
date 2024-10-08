@@ -1,11 +1,11 @@
-package Lox.Statement;
+package Lox.Declaration.Statement;
 
 import Lox.Exp.Expression;
 
-public class PrintStmt extends Stmt{
+public class ExprStmt extends Stmt{
     Expression exp;
 
-    public PrintStmt(Expression exp){
+    public ExprStmt(Expression exp){
         this.exp=exp;
     }
 

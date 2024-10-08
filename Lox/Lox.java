@@ -1,11 +1,7 @@
 package Lox;
 
-import Lox.Exp.Expression;
-import Lox.Statement.ExprStmt;
-import Lox.Statement.PrintStmt;
-import Lox.Statement.Stmt;
+import Lox.Declaration.Statement.Stmt;
 
-import javax.sound.midi.Soundbank;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -71,8 +67,12 @@ public class Lox {
         //
 
         Parser parser=new Parser(scanner.tokenlist);
+        try{
+            List<Stmt> statmentList=parser.generateStmts();
+        }catch (ParseError e){
+            System.out.println(e);
+        }
 
-        List<Stmt> statmentList=parser.generateStmts();
 
 
 
@@ -84,7 +84,7 @@ public class Lox {
                 ap.generateString(stmt.getExp());
             //else
         }
- */
+
 
         Interpreter interpreter=new Interpreter();
         try{
@@ -94,7 +94,7 @@ public class Lox {
             System.out.println(e);
         }
 
-
+*/
 
 
     }

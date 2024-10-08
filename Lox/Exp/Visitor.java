@@ -1,6 +1,5 @@
 package Lox.Exp;
-import Lox.Exp.*;
-import Lox.Statement.Stmt;
+import Lox.Declaration.Statement.Stmt;
 
 public interface Visitor<R>{
 public R visit(Grouping grouping);

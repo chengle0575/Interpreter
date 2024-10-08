@@ -1,4 +1,4 @@
-package Lox.Statement;
+package Lox.Declaration.Statement;
 
 import Lox.Exp.Expression;
 import Lox.Exp.Visitor;

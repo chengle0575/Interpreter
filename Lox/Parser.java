@@ -1,11 +1,11 @@
 package Lox;
 
+import Lox.Declaration.Statement.VarStmt;
 import Lox.Exp.*;
-import Lox.Statement.ExprStmt;
-import Lox.Statement.PrintStmt;
-import Lox.Statement.Stmt;
+import Lox.Declaration.Statement.ExprStmt;
+import Lox.Declaration.Statement.PrintStmt;
+import Lox.Declaration.Statement.Stmt;
 
-import java.security.PublicKey;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -28,10 +28,26 @@ public class Parser {
         if(this.input.get(this.input.size()-1).type!=TokenType.SEMICOLON)
             this.input.add(new Token(TokenType.SEMICOLON));
         while(!reachEnd(p)){
-            stmts.add(statement());
+            stmts.add(declaration());
         }
 
         return stmts;
+    }
+
+    private Stmt declaration(){
+        if(match(TokenType.VAR)) return valDecl();
+        return statement();
+    }
+
+    private Stmt valDecl(){
+        moveahead(); //consume the 'var' keyword;
+        Token identifier=this.input.get(p);
+        p++;
+        if(!this.input.get(p).type.equals(TokenType.EQUAL))// is an assigenment error
+            throw new ParseError("Assignment has to use '=' ");
+
+        p++;
+        return new VarStmt(identifier,parseExpressionInStatement(p));
     }
 
     private Stmt statement(){

@@ -1,9 +1,9 @@
 package Lox;
 
 import Lox.Exp.*;
-import Lox.Statement.ExprStmt;
-import Lox.Statement.PrintStmt;
-import Lox.Statement.Stmt;
+import Lox.Declaration.Statement.ExprStmt;
+import Lox.Declaration.Statement.PrintStmt;
+import Lox.Declaration.Statement.Stmt;
 
 import java.util.List;
 import java.util.Objects;

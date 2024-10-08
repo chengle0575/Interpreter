@@ -81,7 +81,7 @@ public class Scanner {
                         addToken(TokenType.NUMBER,numliteral,line);
                     }else if(Character.isAlphabetic(source.charAt(pstart))||source.charAt(pstart)=='_'){ //key idea here: 1.keywords are reserved identifier 2.the match should follow maximal munch principle
                         String identifierLiteral=getIdentifier();
-                        pstart=pend;
+                        pstart=pend-1;
                         if(isReservedKeywords(identifierLiteral)!=null){
                             addToken(isReservedKeywords(identifierLiteral),line);
                         }else{
