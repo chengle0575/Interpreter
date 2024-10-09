@@ -77,20 +77,12 @@ public class Interpreter implements Visitor {
 
     @Override
     public Object visit(Binary binary) {
-        if(binary.left instanceof Variable && binary.operator.type.equals(TokenType.EQUAL)){
-            String left=((Variable) binary.left).name.literal;
-            Object right=evaluateExpression(binary.right);
 
-            env.assign(left,right);
-        } else{
             Object left=evaluateExpression(binary.left);
             Object right=evaluateExpression(binary.right);
 
             switch(binary.operator.type){
-                case EQUAL:
-                    if(left instanceof String){
-                        env.assign(left.toString(),right);
-                    }
+
                 case PLUS: //the '+' operator can be used for both add values and concat strings
                     if(left instanceof Double && right instanceof Double)
                         return (double)left+(double)right;
@@ -124,7 +116,7 @@ public class Interpreter implements Visitor {
                 case EQUAL_EQUAL:
                     return Objects.equals(left,right);
             }
-        }
+
 
         return null;
     }
