@@ -49,20 +49,14 @@ public class Parser {
 
 
 
-    private Stmt valDecl(){
+    private Stmt valDecl(){ //left the var declaration be seperately deal with
         moveahead(); //consume the 'var' keyword;
-        //Token identifier=this.input.get(p);
-        /*
+        Token identifier= this.input.get(p);
         p++;
-        if(!this.input.get(p).type.equals(TokenType.EQUAL))// is an assigenment error
-            throw new ParseError("[line "+this.input.get(p).line+"] Assignment has to use '=' ");
+        Token operator=this.input.get(p);
+        p++;
 
-        p++;
         return new VarStmt(identifier,parseExpressionInStatement(p));
-
-         */
-        //p++;
-        return expressionStatement();
     }
 
     private Stmt statement(){

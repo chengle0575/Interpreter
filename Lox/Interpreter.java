@@ -45,11 +45,10 @@ public class Interpreter implements Visitor {
             String res=evaluateExpression(exp).toString();
             System.out.println("expression stmt result:"+res);
             return evaluateExpression(exp);
+        } else if (stmt instanceof VarStmt){
+            String identifier=((VarStmt) stmt).getIdentifier().literal;
+            env.assign(identifier, evaluateExpression(stmt.getExp()));
         }
-        //else if (stmt instanceof VarStmt){
-            //assign the value to the identifier, save in memory
-            env.assign(((VarStmt) stmt).getIdentifier().literal, evaluateExpression(stmt.getExp()));
-        //}
 
 
         return null;
@@ -66,6 +65,7 @@ public class Interpreter implements Visitor {
         Object right=evaluateExpression(unary.right);
 
         switch (unary.operator.type){
+
             case MINUS:
                 checkNumOperand(unary.operator,right);
                 return -(double)right;
@@ -77,48 +77,60 @@ public class Interpreter implements Visitor {
 
     @Override
     public Object visit(Binary binary) {
-        Object left=evaluateExpression(binary.left);
-        Object right=evaluateExpression(binary.right);
+        if(binary.left instanceof Variable && binary.operator.type.equals(TokenType.EQUAL)){
+            String left=((Variable) binary.left).name.literal;
+            Object right=evaluateExpression(binary.right);
 
-        switch(binary.operator.type){
-            case PLUS: //the '+' operator can be used for both add values and concat strings
-                if(left instanceof Double && right instanceof Double)
-                    return (double)left+(double)right;
-                if(left instanceof String && right instanceof String)
-                    return (String)left+(String)right;
-                throw new RuntimeError(binary.operator,"Two operands should both be number of string");
-            case MINUS:
-                checkNumOperands(binary.operator,left,right);
-                return (double)left-(double)right;
-            case SLASH:
-                checkNumOperands(binary.operator,left,right);
-                checkZeroDivision(binary.operator,right);
-                return (double)left/(double) right;
-            case STAR:
-                checkNumOperands(binary.operator,left,right);
-                return (double)left*(double) right;
-            case GREATER:
-                checkNumOperands(binary.operator,left,right);
-                return (double)left>(double) right;
-            case GREATER_EQUAL:
-                checkNumOperands(binary.operator,left,right);
-                return (double)left>=(double) right;
-            case LESS:
-                checkNumOperands(binary.operator,left,right);
-                return (double)left<(double) right;
-            case LESS_EQUAL:
-                checkNumOperands(binary.operator,left,right);
-                return (double)left<=(double) right;
-            case BANG_EQUAL:
-                return !Objects.equals(left,right);
-            case EQUAL_EQUAL:
-                return Objects.equals(left,right);
+            env.assign(left,right);
+        } else{
+            Object left=evaluateExpression(binary.left);
+            Object right=evaluateExpression(binary.right);
+
+            switch(binary.operator.type){
+                case EQUAL:
+                    if(left instanceof String){
+                        env.assign(left.toString(),right);
+                    }
+                case PLUS: //the '+' operator can be used for both add values and concat strings
+                    if(left instanceof Double && right instanceof Double)
+                        return (double)left+(double)right;
+                    if(left instanceof String && right instanceof String)
+                        return (String)left+(String)right;
+                    throw new RuntimeError(binary.operator,"Two operands should both be number of string");
+                case MINUS:
+                    checkNumOperands(binary.operator,left,right);
+                    return (double)left-(double)right;
+                case SLASH:
+                    checkNumOperands(binary.operator,left,right);
+                    checkZeroDivision(binary.operator,right);
+                    return (double)left/(double) right;
+                case STAR:
+                    checkNumOperands(binary.operator,left,right);
+                    return (double)left*(double) right;
+                case GREATER:
+                    checkNumOperands(binary.operator,left,right);
+                    return (double)left>(double) right;
+                case GREATER_EQUAL:
+                    checkNumOperands(binary.operator,left,right);
+                    return (double)left>=(double) right;
+                case LESS:
+                    checkNumOperands(binary.operator,left,right);
+                    return (double)left<(double) right;
+                case LESS_EQUAL:
+                    checkNumOperands(binary.operator,left,right);
+                    return (double)left<=(double) right;
+                case BANG_EQUAL:
+                    return !Objects.equals(left,right);
+                case EQUAL_EQUAL:
+                    return Objects.equals(left,right);
+            }
         }
+
         return null;
     }
 
     @Override
-    public Object visit(Variable variable) {
+    public Object visit(Variable variable) { //deal with variable in the right hand side in the expression
         return env.get(variable.name);
     }
 
