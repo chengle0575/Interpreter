@@ -19,6 +19,9 @@ public class Interpreter implements Visitor {
         }
         return  null;
     }
+
+
+
     private Object evaluateStatement(Stmt stmt){
         return stmt.accept(this);
     }
@@ -26,32 +29,31 @@ public class Interpreter implements Visitor {
         return exp.accept(this);
     }
 
-    private static boolean isTruth(Object o){
-        if(Objects.equals(o,null)|| Objects.equals(o,false))
-            return false;
-        return true;
-    }
 
 
 
     @Override
     public Object visit(Stmt stmt) {
-
         if(stmt instanceof PrintStmt) {
             System.out.println(evaluateExpression(stmt.getExp()));
             return null;
         } else if (stmt instanceof ExprStmt){
             Expression exp=stmt.getExp();
-            String res=evaluateExpression(exp).toString();
-            System.out.println("expression stmt result:"+res);
             return evaluateExpression(exp);
         } else if (stmt instanceof VarStmt){
             String identifier=((VarStmt) stmt).getIdentifier().literal;
             env.assign(identifier, evaluateExpression(stmt.getExp()));
         }
-
-
         return null;
+    }
+
+    @Override
+    public Object visit(Assign assign) {
+        ;Token identifier=assign.getName();
+         if(env.get(identifier)!=null){ //this will check if identifier is exsiting in map and throw error if not
+             env.assign(identifier.literal,evaluateExpression(assign.getValue()));
+         }
+         return null;
     }
 
 
@@ -132,6 +134,15 @@ public class Interpreter implements Visitor {
     }
 
 
+
+
+
+    //helper functions
+    private static boolean isTruth(Object o){
+        if(Objects.equals(o,null)|| Objects.equals(o,false))
+            return false;
+        return true;
+    }
 
 
     private void checkNumOperand(Token operator,Object operand){

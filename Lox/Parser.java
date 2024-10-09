@@ -27,6 +27,7 @@ public class Parser {
     public List<Stmt> generateStmts(){
         if(this.input.get(this.input.size()-1).type!=TokenType.SEMICOLON)
             this.input.add(new Token(TokenType.SEMICOLON));
+
         while(!reachEnd(p)){
             stmts.add(declaration());
         }
@@ -55,7 +56,6 @@ public class Parser {
         p++;
         Token operator=this.input.get(p);
         p++;
-
         return new VarStmt(identifier,parseExpressionInStatement(p));
     }
 
@@ -74,11 +74,26 @@ public class Parser {
     }
 
 
-
-
-
     private Expression expression(){ //expression->equality
-        return equality();
+        return assignment();
+    }
+
+    private Expression assignment(){ //assignment-> identifier "=assignment" | equality
+        if(match(TokenType.IDENTIFIER)){
+            Token identifier=this.input.get(p);
+            p++;
+            if(match(TokenType.EQUAL) && !this.input.get(p+1).type.equals(TokenType.EQUAL)){
+                p++;
+                Expression assign2=assignment();
+                return new Assign(identifier,assign2);
+            }else{// a==b
+                p--;
+                return equality();
+            }
+        }else{
+            return equality();
+        }
+
     }
 
     private Expression equality(){//equality-> comparison (((!=|==) comparison))*

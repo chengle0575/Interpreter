@@ -8,4 +8,5 @@ public R visit(Binary binary);
 public R visit(Variable variable);
 public R visit(Literal literal);
 public R visit(Stmt stmt);
+public R visit(Assign assign);
 }

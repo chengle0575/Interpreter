@@ -66,4 +66,9 @@ public class Printer implements Visitor {
     public Object visit(Stmt stmt) {
         return null;
     }
+
+    @Override
+    public Object visit(Assign assign) {
+        return null;
+    }
 }
