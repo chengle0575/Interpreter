@@ -1,13 +1,11 @@
 package Lox;
 
-import Lox.Declaration.Statement.VarStmt;
+import Lox.Declaration.Statement.*;
 import Lox.Exp.*;
-import Lox.Declaration.Statement.ExprStmt;
-import Lox.Declaration.Statement.PrintStmt;
-import Lox.Declaration.Statement.Stmt;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Stack;
 
 
 public class Parser {
@@ -35,7 +33,7 @@ public class Parser {
         return stmts;
     }
 
-    private Stmt declaration(){
+    private Stmt declaration(){ //declaration -> valDecl || statement
         try{
             if(match(TokenType.VAR)) return valDecl();
             return statement();
@@ -59,14 +57,42 @@ public class Parser {
         return new VarStmt(identifier,parseExpressionInStatement(p));
     }
 
-    private Stmt statement(){
+    private Stmt statement(){ //statement -> printStmt || exprStmt || block
         if(match(TokenType.PRINT)) return printStatement();
+        if(match(TokenType.LEFT_PAREN)) return new BlockStmt(block()); /////////////////
         return expressionStatement();
     }
 
     private PrintStmt printStatement(){
         moveahead(); //ignore this print identifier
         return new PrintStmt(parseExpressionInStatement(p));
+    }
+
+    private List<Stmt> block(){
+        //find the last "}", and parse inside
+        int start=p+1;
+        int q=findPairedRightBrace(p);
+        p=q+1;
+        return new Parser(input.subList(start,q)).generateStmts();
+    }
+
+    private int findPairedRightBrace(int p){ //p point to the left brace now
+        Stack<Token> stack=new Stack<>();
+        int q=p+1;
+        stack.push(this.input.get(p));
+
+        while(stack.size()>0 && q<this.input.size()){
+            if(this.input.get(q).type.equals(TokenType.LEFT_PAREN))
+                stack.push(this.input.get(q));
+            if(this.input.get(q).type.equals(TokenType.RIGHT_PAREN))
+                stack.pop();
+            q++;
+        }
+
+        if(stack.size()==0)
+            return q-1;
+        else
+            throw new ParseError(this.input.get(p),"The left brace need to be paired.");
     }
 
     private  ExprStmt expressionStatement(){

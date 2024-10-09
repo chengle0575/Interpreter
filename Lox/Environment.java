@@ -18,6 +18,9 @@ public class Environment {
         map=new HashMap<>();
     }
 
+    public Environment getOuterEnv(){
+        return outerEnv;
+    }
     public void assign(String key, Object value){
         map.put(key,value);
     }

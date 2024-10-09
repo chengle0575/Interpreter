@@ -1,10 +1,7 @@
 package Lox;
 
-import Lox.Declaration.Statement.VarStmt;
+import Lox.Declaration.Statement.*;
 import Lox.Exp.*;
-import Lox.Declaration.Statement.ExprStmt;
-import Lox.Declaration.Statement.PrintStmt;
-import Lox.Declaration.Statement.Stmt;
 
 import java.util.List;
 import java.util.Objects;
@@ -54,6 +51,18 @@ public class Interpreter implements Visitor {
              env.assign(identifier.literal,evaluateExpression(assign.getValue()));
          }
          return null;
+    }
+
+    @Override
+    public Object visit(BlockStmt blockStmt) {
+        env=new Environment(env); //current env is a new env. point to its parent env
+
+        for(Stmt stmt:blockStmt.getStmtslist()){
+            evaluateStatement(stmt);
+        }
+
+        env=env.getOuterEnv();
+        return null;
     }
 
 
