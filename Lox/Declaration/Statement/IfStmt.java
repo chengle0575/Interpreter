@@ -14,6 +14,17 @@ public class IfStmt extends Stmt{
         this.elsestmt=elsestmt;
     }
 
+    public Expression getConditionExp(){
+        return conditionExp;
+    }
+
+    public Stmt getIfstmt(){
+        return ifstmt;
+    }
+
+    public Stmt getElsestmt(){
+        return elsestmt;
+    }
     public Object accept(Visitor v){
         return v.visit(this);
     }

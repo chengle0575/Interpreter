@@ -1,6 +1,7 @@
 package Lox;
 
 import Lox.Declaration.Statement.BlockStmt;
+import Lox.Declaration.Statement.IfStmt;
 import Lox.Exp.*;
 import Lox.Declaration.Statement.Stmt;
 
@@ -75,6 +76,11 @@ public class Printer implements Visitor {
 
     @Override
     public Object visit(BlockStmt blockStmt) {
+        return null;
+    }
+
+    @Override
+    public Object visit(IfStmt ifStmt) {
         return null;
     }
 }

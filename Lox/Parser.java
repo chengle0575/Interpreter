@@ -13,7 +13,7 @@ public class Parser {
     List<Token> input;
     int p=0;
     List<Stmt> stmts;
-    //HashMap<String,Expression> variable_valueMap;
+
 
     Parser(List<Token> input){
         this.input=input;
@@ -23,9 +23,6 @@ public class Parser {
 
 
     public List<Stmt> generateStmts(){
-        if(this.input.get(this.input.size()-1).type!=TokenType.SEMICOLON)
-            this.input.add(new Token(TokenType.SEMICOLON));
-
         while(!reachEnd(p)){
             stmts.add(declaration());
         }
@@ -51,10 +48,13 @@ public class Parser {
     private Stmt valDecl(){ //left the var declaration be seperately deal with
         moveahead(); //consume the 'var' keyword;
         Token identifier= this.input.get(p);
-        p++;
+        moveahead();
         Token operator=this.input.get(p);
-        p++;
-        return new VarStmt(identifier,parseExpressionInStatement(p));
+        moveahead();
+        Expression exp=expression();
+        skipEndSemicolon();
+        return new VarStmt(identifier,exp);
+
     }
 
     private Stmt statement(){ //statement -> printStmt || exprStmt || block
@@ -65,85 +65,62 @@ public class Parser {
     }
 
 
-
-
-
     private List<Stmt> block(){
         //find the last "}", and parse inside
-        int start=p+1;
-        int q=findPairedRightBrace(p);
-        p=q+1;
-        return new Parser(input.subList(start,q)).generateStmts();
+        moveahead();
+
+        List<Stmt> blockstmt=new ArrayList<>();
+
+        while(!match(TokenType.RIGHT_PAREN)){
+            blockstmt.add(declaration());
+        }
+        moveahead();
+        return blockstmt;
+
     }
 
     private PrintStmt printStatement(){
         moveahead(); //ignore this print identifier
-        return new PrintStmt(parseExpressionInStatement(p));
+        Expression exp=expression();
+        skipEndSemicolon();
+        return new PrintStmt(exp);
     }
 
     private IfStmt ifStmt(){//parse the if statement here, where p is pointing to 'IF' now
         moveahead();
         if(this.input.get(p).type!=TokenType.LEFT_BRACE)
-            throw new ParseError("the condition in If statement should be wrapped in braces '()' ");
+            throw new ParseError("the condition in If statement should be wrapped in braces '()', lack '(' here");
+
         moveahead();
-        Expression conditionExp=getConditionExp();
-        Stmt ifStmt=getIfStmt();
-        Stmt elseStmt=getElseStmt();
+        Expression conditionExp=expression();
+
+        if(this.input.get(p).type!=TokenType.RIGHT_BRACE)
+            throw new ParseError("the condition in If statement should be wrapped in braces '()' , lack ')' here");
+
+        moveahead();
+        Stmt ifStmt=statement();
+
+        Stmt elseStmt=null;
+        if(match(TokenType.ELSE)){
+            moveahead();
+            elseStmt=statement();
+        }
+
 
         return new IfStmt(conditionExp,ifStmt,elseStmt);
     }
 
-    private Expression getConditionExp(){
-        int start=p;
-        int end=p+1;
-
-        while(this.input.get(end).type!=TokenType.RIGHT_BRACE && end<this.input.size()) //find the ')'
-            end++;
-
-        if(end>this.input.size()) //lack ')'
-            throw new ParseError("the condition in If statement should be wrapped in braces '()' ");
-
-        Expression exp=new Parser(this.input.subList(start,end)).expression();
-        p=end+1;
-        return exp;
-    }
-
-    private Stmt getIfStmt(){
-        int start=p;
-        int end=p+1;
-
-        while(this.input.get(end).type!=TokenType.ELSE && this.input.get(end).type!=TokenType.SEMICOLON)
-            end++;
-        if(end>this.input.size()) //lack ')'
-            throw new ParseError("The conditional IF branching in not complete");
-
-        Stmt stmt=new Parser(this.input.subList(start,end+1)).statement();
-        p=end;
-        return stmt;
-    }
-
-    private Stmt getElseStmt(){
-        if(this.input.get(p).type==TokenType.ELSE){
-            moveahead();
-
-            int start=p;
-            int end=p+1;
-
-            while(this.input.get(end).type!=TokenType.SEMICOLON)
-                end++;
-            if(end>this.input.size()) //lack ')'
-                throw new ParseError("The conditional ELSE branching in not complete");
-            Stmt stmt=new Parser(this.input.subList(start,end+1)).statement();
-            p=end+1;
-            return stmt;
-
-        }else
-            return null;
-    }
-
 
     private  ExprStmt expressionStatement(){
-        return new ExprStmt(parseExpressionInStatement(p));
+        Expression exp=expression();
+        skipEndSemicolon();
+        return new ExprStmt(exp);
+    }
+
+    private void skipEndSemicolon(){
+        if(this.input.get(p).type!=TokenType.SEMICOLON)
+            throw new ParseError("This statement need to end with semicolon");
+        moveahead();
     }
 
 
@@ -309,19 +286,6 @@ public class Parser {
         return false;
     }
 
-    private Expression parseExpressionInStatement(int p){
-        int pend=p+1;
-        while(this.input.get(pend).type!=TokenType.SEMICOLON){
-            pend++;
-        }
-
-        Parser innerparser=new Parser(this.input.subList(p,pend));
-
-        this.p=pend+1;
-        return innerparser.expression();
-    }
-
-
     private void panicRecoverFromError(){
         while(this.input.get(p).type!=TokenType.SEMICOLON){
             p++;
@@ -329,23 +293,4 @@ public class Parser {
         p++;
     }
 
-
-    private int findPairedRightBrace(int p){ //p point to the left brace now
-        Stack<Token> stack=new Stack<>();
-        int q=p+1;
-        stack.push(this.input.get(p));
-
-        while(stack.size()>0 && q<this.input.size()){
-            if(this.input.get(q).type.equals(TokenType.LEFT_PAREN))
-                stack.push(this.input.get(q));
-            if(this.input.get(q).type.equals(TokenType.RIGHT_PAREN))
-                stack.pop();
-            q++;
-        }
-
-        if(stack.size()==0)
-            return q-1;
-        else
-            throw new ParseError(this.input.get(p),"The left brace need to be paired.");
-    }
 }

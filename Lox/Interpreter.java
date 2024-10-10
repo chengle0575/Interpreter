@@ -65,6 +65,17 @@ public class Interpreter implements Visitor {
         return null;
     }
 
+    @Override
+    public Object visit(IfStmt ifStmt) {
+        if(evaluateExpression(ifStmt.getConditionExp()).equals(true))
+            return evaluateStatement(ifStmt.getIfstmt());
+        else{
+            if(ifStmt.getElsestmt()!=null)
+                return evaluateStatement(ifStmt.getElsestmt());
+        }
+        return null;
+    }
+
 
     @Override
     public Object visit(Grouping grouping) {
