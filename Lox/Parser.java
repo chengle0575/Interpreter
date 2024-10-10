@@ -60,13 +60,13 @@ public class Parser {
     private Stmt statement(){ //statement -> printStmt || exprStmt || block
         if(match(TokenType.PRINT)) return printStatement();
         if(match(TokenType.LEFT_PAREN)) return new BlockStmt(block()); /////////////////
+        if(match(TokenType.IF)) return ifStmt();
         return expressionStatement();
     }
 
-    private PrintStmt printStatement(){
-        moveahead(); //ignore this print identifier
-        return new PrintStmt(parseExpressionInStatement(p));
-    }
+
+
+
 
     private List<Stmt> block(){
         //find the last "}", and parse inside
@@ -76,24 +76,71 @@ public class Parser {
         return new Parser(input.subList(start,q)).generateStmts();
     }
 
-    private int findPairedRightBrace(int p){ //p point to the left brace now
-        Stack<Token> stack=new Stack<>();
-        int q=p+1;
-        stack.push(this.input.get(p));
-
-        while(stack.size()>0 && q<this.input.size()){
-            if(this.input.get(q).type.equals(TokenType.LEFT_PAREN))
-                stack.push(this.input.get(q));
-            if(this.input.get(q).type.equals(TokenType.RIGHT_PAREN))
-                stack.pop();
-            q++;
-        }
-
-        if(stack.size()==0)
-            return q-1;
-        else
-            throw new ParseError(this.input.get(p),"The left brace need to be paired.");
+    private PrintStmt printStatement(){
+        moveahead(); //ignore this print identifier
+        return new PrintStmt(parseExpressionInStatement(p));
     }
+
+    private IfStmt ifStmt(){//parse the if statement here, where p is pointing to 'IF' now
+        moveahead();
+        if(this.input.get(p).type!=TokenType.LEFT_BRACE)
+            throw new ParseError("the condition in If statement should be wrapped in braces '()' ");
+        moveahead();
+        Expression conditionExp=getConditionExp();
+        Stmt ifStmt=getIfStmt();
+        Stmt elseStmt=getElseStmt();
+
+        return new IfStmt(conditionExp,ifStmt,elseStmt);
+    }
+
+    private Expression getConditionExp(){
+        int start=p;
+        int end=p+1;
+
+        while(this.input.get(end).type!=TokenType.RIGHT_BRACE && end<this.input.size()) //find the ')'
+            end++;
+
+        if(end>this.input.size()) //lack ')'
+            throw new ParseError("the condition in If statement should be wrapped in braces '()' ");
+
+        Expression exp=new Parser(this.input.subList(start,end)).expression();
+        p=end+1;
+        return exp;
+    }
+
+    private Stmt getIfStmt(){
+        int start=p;
+        int end=p+1;
+
+        while(this.input.get(end).type!=TokenType.ELSE && this.input.get(end).type!=TokenType.SEMICOLON)
+            end++;
+        if(end>this.input.size()) //lack ')'
+            throw new ParseError("The conditional IF branching in not complete");
+
+        Stmt stmt=new Parser(this.input.subList(start,end+1)).statement();
+        p=end;
+        return stmt;
+    }
+
+    private Stmt getElseStmt(){
+        if(this.input.get(p).type==TokenType.ELSE){
+            moveahead();
+
+            int start=p;
+            int end=p+1;
+
+            while(this.input.get(end).type!=TokenType.SEMICOLON)
+                end++;
+            if(end>this.input.size()) //lack ')'
+                throw new ParseError("The conditional ELSE branching in not complete");
+            Stmt stmt=new Parser(this.input.subList(start,end+1)).statement();
+            p=end+1;
+            return stmt;
+
+        }else
+            return null;
+    }
+
 
     private  ExprStmt expressionStatement(){
         return new ExprStmt(parseExpressionInStatement(p));
@@ -280,5 +327,25 @@ public class Parser {
             p++;
         }
         p++;
+    }
+
+
+    private int findPairedRightBrace(int p){ //p point to the left brace now
+        Stack<Token> stack=new Stack<>();
+        int q=p+1;
+        stack.push(this.input.get(p));
+
+        while(stack.size()>0 && q<this.input.size()){
+            if(this.input.get(q).type.equals(TokenType.LEFT_PAREN))
+                stack.push(this.input.get(q));
+            if(this.input.get(q).type.equals(TokenType.RIGHT_PAREN))
+                stack.pop();
+            q++;
+        }
+
+        if(stack.size()==0)
+            return q-1;
+        else
+            throw new ParseError(this.input.get(p),"The left brace need to be paired.");
     }
 }
