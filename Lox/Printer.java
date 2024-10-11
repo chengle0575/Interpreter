@@ -83,4 +83,9 @@ public class Printer implements Visitor {
     public Object visit(IfStmt ifStmt) {
         return null;
     }
+
+    @Override
+    public Object visit(LogicOpration logicOpration) {
+        return null;
+    }
 }

@@ -13,4 +13,5 @@ public R visit(Stmt stmt);
 public R visit(Assign assign);
 public R visit(BlockStmt blockStmt);
 public R visit(IfStmt ifStmt);
+public R visit(LogicOpration logicOpration);
 }

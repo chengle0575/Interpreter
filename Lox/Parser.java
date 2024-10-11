@@ -138,12 +138,42 @@ public class Parser {
                 return new Assign(identifier,assign2);
             }else{// a==b
                 p--;
-                return equality();
+                return logic_or();
             }
         }else{
-            return equality();
+            return logic_or();
         }
 
+    }
+
+    private LogicOpration logic_or(){ //logic_or -> logic_and ("or" logic_and)*
+
+        List<Expression> operandsForOr=new ArrayList<>();
+
+        LogicOpration logicAnd=logic_and();
+        operandsForOr.add(logicAnd);
+        while(match(TokenType.OR)){
+            moveahead();
+            operandsForOr.add(logic_and());
+        }
+
+
+        return new LogicOpration(operandsForOr,new Token(TokenType.OR));
+
+    }
+
+    private LogicOpration logic_and(){//-> equality ("and" equality)*
+        List<Expression> operandsForAnd=new ArrayList<>();
+
+        Expression equalityExp=equality();
+        operandsForAnd.add(equalityExp);
+        while(match(TokenType.AND)){
+            moveahead();
+            operandsForAnd.add(equality());
+        }
+
+
+        return new LogicOpration(operandsForAnd,new Token(TokenType.AND));
     }
 
     private Expression equality(){//equality-> comparison (((!=|==) comparison))*

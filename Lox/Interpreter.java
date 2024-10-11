@@ -76,6 +76,31 @@ public class Interpreter implements Visitor {
         return null;
     }
 
+    @Override
+    public Object visit(LogicOpration logicOpration) {
+        List<Expression> expl=logicOpration.getOperands();
+        Token operator=logicOpration.getOperator();
+
+        if(expl.size()==1)
+            return evaluateExpression(expl.get(0));
+
+        if(operator.type==TokenType.AND){
+            for(Expression exp:expl){
+                if(evaluateExpression(exp)==null || evaluateExpression(exp).equals(false)){
+                    return evaluateExpression(exp);
+                }
+            }
+            return true;
+        }else{
+            for(Expression exp:expl){
+                if(!Objects.equals(evaluateExpression(exp),false)&&!Objects.equals(evaluateExpression(exp),null))
+                    return evaluateExpression(exp);
+            }
+
+            return false;
+        }
+    }
+
 
     @Override
     public Object visit(Grouping grouping) {
@@ -150,6 +175,7 @@ public class Interpreter implements Visitor {
 
     @Override
     public Object visit(Literal literal) {
+
         return literal.value; //convert a tree node into a runtime value
     }
 
