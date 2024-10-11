@@ -3,6 +3,7 @@ package Lox;
 import Lox.Declaration.Statement.*;
 import Lox.Exp.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Stack;
@@ -62,6 +63,7 @@ public class Parser {
         if(match(TokenType.LEFT_PAREN)) return new BlockStmt(block()); /////////////////
         if(match(TokenType.IF)) return ifStmt();
         if(match(TokenType.WHILE)) return whileStmt();
+        if(match(TokenType.FOR)) return forStmt();
         return expressionStatement();
     }
 
@@ -123,6 +125,61 @@ public class Parser {
         Stmt loopbody=statement();
 
         return new WhileStmt(condition,loopbody);
+    }
+
+    private Stmt forStmt(){
+        moveahead();
+        if(this.input.get(p).type!=TokenType.LEFT_BRACE)
+            throw new ParseError("The condition in for loop should be wrapped in '()', lack '(' here");
+        moveahead();
+
+        Stmt initilizer=null;
+
+
+        if(match(TokenType.VAR))
+            initilizer=valDecl();
+        else if(!match(TokenType.SEMICOLON))
+            initilizer=expressionStatement();
+        else
+            moveahead();
+
+        Expression condition=null;
+        if(!match(TokenType.SEMICOLON))
+            condition=expression();
+        moveahead();
+
+        Expression loopbody1=null;
+        if(!match(TokenType.SEMICOLON))
+            loopbody1=expression();
+        moveahead();
+        moveahead();
+
+        Stmt loopboday2=statement();
+
+        /*use desugaring technique to change the enhanced for loop to the form of while loop
+        * {
+            * initializer;
+            * while(condition){
+            *       loopboday2;
+            *       loopboday1;
+            * }
+        * }*/
+        //have to dead with the null here. because null here is not a valid AST node for furthur interpretion
+        List<Stmt> stmtlistInloop=new ArrayList<>();
+        stmtlistInloop.add(loopboday2);
+
+        if(loopbody1!=null)
+            stmtlistInloop.add(new ExprStmt(loopbody1));
+
+        if(condition==null)
+            condition=new Literal(true);
+
+        WhileStmt whileStmt=new WhileStmt(condition,new BlockStmt(stmtlistInloop));
+
+        if(initilizer!=null)
+            return new BlockStmt(Arrays.asList(initilizer,whileStmt));
+        else
+            return whileStmt;
     }
 
     private  ExprStmt expressionStatement(){
