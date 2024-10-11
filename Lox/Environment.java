@@ -22,7 +22,11 @@ public class Environment {
         return outerEnv;
     }
     public void assign(String key, Object value){
-        map.put(key,value);
+        Environment toupdateEnv=findEnvContainskey(key);
+        if(toupdateEnv==null)
+            this.map.put(key,value); //means this assign is used in declaraction: var a=3;
+        else
+            toupdateEnv.map.put(key,value);//means this assign is used in assignment: a=a+3;
     }
 
     public Object get(Token t){
@@ -33,6 +37,15 @@ public class Environment {
             throw new RuntimeError(t,"The variable is undefined");
         else
             return outerEnv.get(t);
+    }
+
+    Environment findEnvContainskey(String key){
+        Environment residentEnv=this;
+        while(residentEnv!=null && !residentEnv.map.containsKey(key)){
+            residentEnv=residentEnv.outerEnv;
+        }
+
+        return residentEnv;
     }
 
 }

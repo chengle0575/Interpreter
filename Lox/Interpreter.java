@@ -101,6 +101,14 @@ public class Interpreter implements Visitor {
         }
     }
 
+    @Override
+    public Object visit(WhileStmt whileStmt) {
+        while(isTruth(evaluateExpression(whileStmt.getCondition()))){
+            evaluateStatement(whileStmt.getLoopbody());
+        }
+        return null;
+    }
+
 
     @Override
     public Object visit(Grouping grouping) {

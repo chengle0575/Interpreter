@@ -61,6 +61,7 @@ public class Parser {
         if(match(TokenType.PRINT)) return printStatement();
         if(match(TokenType.LEFT_PAREN)) return new BlockStmt(block()); /////////////////
         if(match(TokenType.IF)) return ifStmt();
+        if(match(TokenType.WHILE)) return whileStmt();
         return expressionStatement();
     }
 
@@ -110,6 +111,19 @@ public class Parser {
         return new IfStmt(conditionExp,ifStmt,elseStmt);
     }
 
+    private WhileStmt whileStmt(){
+        moveahead();
+        if(this.input.get(p).type!=TokenType.LEFT_BRACE)
+            throw new ParseError("The condition in while loop should be wrapped in '()', lack '(' here");
+        moveahead();
+        Expression condition=expression();
+        if(this.input.get(p).type!=TokenType.RIGHT_BRACE)
+            throw new ParseError("The condition in while loop should be wrapped in '()', lack ')' here");
+        moveahead();
+        Stmt loopbody=statement();
+
+        return new WhileStmt(condition,loopbody);
+    }
 
     private  ExprStmt expressionStatement(){
         Expression exp=expression();
