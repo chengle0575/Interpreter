@@ -3,6 +3,8 @@ package Lox;
 import Lox.Declaration.Statement.*;
 import Lox.Exp.*;
 
+import java.security.spec.ECPoint;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -18,7 +20,9 @@ public class Interpreter implements Visitor {
     }
 
 
-
+    public Environment getEnv(){
+        return env;
+    }
     private Object evaluateStatement(Stmt stmt){
         return stmt.accept(this);
     }
@@ -119,6 +123,45 @@ public class Interpreter implements Visitor {
         return null;
     }
 
+    @Override
+    public Object visit(Call call) {
+        Token functionName=((Variable)call.getFunctionName()).getName();
+        List<List<Expression>> argmentsLists=call.getArgmentsList();
+        Object value=null;
+
+        for(List<Expression> argumentList:argmentsLists){
+            Object loxFunction=env.get(functionName);
+
+            if(loxFunction instanceof LoxFunction){
+                LoxFunction callee=(LoxFunction) loxFunction;
+
+                //test the same size of argume
+                if(argumentList.size()!=callee.arity())
+                    throw new RuntimeError(functionName,"The arguments you passed are less/more than requirement");
+
+                List<Object> argumentListAftEvaluation=getArgumentListAftEvaluation(argumentList);
+
+                env=new Environment(env);
+                value=callee.call(this,argumentListAftEvaluation); //need to create a new env for the running function
+                env=env.getOuterEnv();//exist the function env
+
+            }else{
+                throw new RuntimeError(functionName,"Cannot find function");
+            }
+
+        }
+        return value;
+    }
+
+    //helper function
+    List<Object> getArgumentListAftEvaluation(List<Expression> l){
+        List<Object> res=new ArrayList<>();
+
+        for(Expression exp:l){
+            res.add(evaluateExpression(exp));
+        }
+        return res;
+    }
 
     @Override
     public Object visit(Grouping grouping) {
@@ -197,7 +240,7 @@ public class Interpreter implements Visitor {
 
     @Override
     public Object visit(Variable variable) { //deal with variable in the right hand side in the expression
-        return env.get(variable.name);
+        return env.get(variable.getName());
     }
 
     @Override

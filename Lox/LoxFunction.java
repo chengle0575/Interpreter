@@ -14,8 +14,20 @@ public class LoxFunction implements LoxCallable{
         this.parameters=parameters;
         this.funtionbody=funtionbody;
     }
+    public int arity(){
+        return parameters.size();
+    }
+    @Override
+    public Object call(Interpreter interpreter,List<Object> arguments){ //the interpreter will pass arguments into the function to replace the parameters
 
-    public Object call(List<Expression> arguments){ //the interpreter will pass arguments into the function to replace the parameters
+        //pair parameters and arguments, store in the interpreter's cur env
+        for(int i=0;i<arity();i++){
+            interpreter.getEnv().assign(parameters.get(i).literal,arguments.get(i));
+        }
+
+        //get the body of the function and execute
+        interpreter.execute(funtionbody);
+
         return null;
     }
 }

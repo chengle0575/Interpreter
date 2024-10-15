@@ -375,6 +375,7 @@ public class Parser {
     }
 
     private Expression call(){ // call -> primary ( "(" arguments? ")")*
+
         Expression primaryExp=primary();
 
         List<List<Expression>> argmentsList=new ArrayList<>();
