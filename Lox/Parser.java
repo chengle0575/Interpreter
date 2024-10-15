@@ -31,10 +31,11 @@ public class Parser {
         return stmts;
     }
 
-    private Stmt declaration(){ //declaration -> valDecl || statement
+    private Stmt declaration(){ //declaration -> funDecl || valDecl || statement
         try{
-            if(match(TokenType.VAR)) return valDecl();
-            return statement();
+            if((match(TokenType.FUN))) return funDecl();
+            else if(match(TokenType.VAR)) return valDecl();
+            else return statement();
         }catch (ParseError e){
             System.out.println(e);
             //update pointer p to be ready for the next declaration to parse
@@ -45,12 +46,70 @@ public class Parser {
     }
 
 
+    private Stmt funDecl(){
+        moveahead(); //consume 'fun' keyword
+        Stmt func=function();
+        return func;
+    }
+
+    private Stmt function(){
+        Token identifier=this.input.get(p);
+        moveahead();
+        if(this.input.get(p).type!=TokenType.LEFT_BRACE)
+            throw new ParseError("Function parameters should be wrapped in '()',lack '(' here");
+        moveahead();
+
+
+        List<Token> parameters=new ArrayList<>();
+        List<Stmt> functionContent=null;
+
+        if(this.input.get(p).type!=TokenType.RIGHT_BRACE){
+            parameters=parameters();
+
+            if(this.input.get(p).type!=TokenType.RIGHT_BRACE)
+                throw new ParseError("Function parameters should be wrapped in '()',lack ')' here");
+            moveahead();
+
+            functionContent=block();
+        }else{ //implies no paramters
+            moveahead();
+            functionContent=block();
+        }
+
+
+        return new FuncStmt(identifier,parameters,functionContent);
+    }
+
+    //helper for function()
+    private List<Token> parameters(){
+        List<Token> parameterList=new ArrayList<>();
+        Token identifier=this.input.get(p);
+        parameterList.add(identifier);
+        moveahead();
+
+        while(match(TokenType.COMMA)){
+            moveahead();
+            Token t=this.input.get(p);
+            parameterList.add(t);
+            moveahead();
+        }
+
+        return parameterList;
+    }
+
 
     private Stmt valDecl(){ //left the var declaration be seperately deal with
         moveahead(); //consume the 'var' keyword;
         Token identifier= this.input.get(p);
         moveahead();
-        Token operator=this.input.get(p);
+
+        if(this.input.get(p).type==TokenType.SEMICOLON){
+            skipEndSemicolon();
+            return new VarStmt(identifier,new Literal(null));
+        }
+
+
+
         moveahead();
         Expression exp=expression();
         skipEndSemicolon();
@@ -312,7 +371,40 @@ public class Parser {
             return new Unary(t,unary());
         }
 
-        return primary();
+        //return primary();
+        return call();
+    }
+
+    private Expression call(){ // call -> primary ( "(" arguments? ")")*
+        Expression primaryExp=primary();
+
+        List<List<Expression>> argmentsList=new ArrayList<>();
+
+        while (match(TokenType.LEFT_BRACE)){
+            //find all arguments
+            List<Expression> arg=argument();
+            argmentsList.add(arg);
+            moveahead();
+        }
+        if(argmentsList==null)
+            return primaryExp;
+        else
+            return new Call(primaryExp,argmentsList);
+    }
+
+    private List<Expression> argument(){
+        List<Expression> argments=new ArrayList<>();
+
+        Expression exp=expression();
+        argments.add(exp);
+        while(match(TokenType.COMMA)){
+            Expression exp2=expression();
+            argments.add(exp2);
+
+        }
+
+        return argments;
+
     }
 
     private Expression primary(){

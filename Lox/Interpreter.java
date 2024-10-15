@@ -130,6 +130,7 @@ public class Interpreter implements Visitor {
         return null;
     }
 
+
     @Override
     public Object visit(Binary binary) {
 
@@ -139,9 +140,17 @@ public class Interpreter implements Visitor {
             switch(binary.operator.type){
 
                 case PLUS: //the '+' operator can be used for both add values and concat strings
-                    if(left instanceof Double && right instanceof Double)
+                    if(left==null && right instanceof Double)
+                        return (double)right;
+                    else if(right==null && left instanceof Double)
+                        return (double)left;
+                    else if(left==null && right instanceof String)
+                        return (String)right;
+                    else if(right==null &&left instanceof String)
+                        return (String)left;
+                    else if(left instanceof Double && right instanceof Double)
                         return (double)left+(double)right;
-                    if(left instanceof String && right instanceof String)
+                    else if(left instanceof String && right instanceof String)
                         return (String)left+(String)right;
                     throw new RuntimeError(binary.operator,"Two operands should both be number of string");
                 case MINUS:
