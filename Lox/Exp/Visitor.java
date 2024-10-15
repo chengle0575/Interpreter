@@ -1,8 +1,5 @@
 package Lox.Exp;
-import Lox.Declaration.Statement.BlockStmt;
-import Lox.Declaration.Statement.IfStmt;
-import Lox.Declaration.Statement.Stmt;
-import Lox.Declaration.Statement.WhileStmt;
+import Lox.Declaration.Statement.*;
 import Lox.Exp.*;
 public interface Visitor<R>{
 public R visit(Grouping grouping);
@@ -16,4 +13,5 @@ public R visit(BlockStmt blockStmt);
 public R visit(IfStmt ifStmt);
 public R visit(LogicOpration logicOpration);
 public R visit(WhileStmt whileStmt);
+public R visit(FuncStmt funcStmt);
 }

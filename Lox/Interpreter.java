@@ -109,6 +109,16 @@ public class Interpreter implements Visitor {
         return null;
     }
 
+    @Override
+    public Object visit(FuncStmt funcStmt) {
+        //declare a function and store it in the env
+        Token identifier=funcStmt.getIdentifier();
+        LoxFunction loxFunction=new LoxFunction(funcStmt.getParameters(),funcStmt.getFunctionContent());
+        env.assign(identifier.literal,loxFunction);
+
+        return null;
+    }
+
 
     @Override
     public Object visit(Grouping grouping) {

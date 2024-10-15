@@ -371,7 +371,6 @@ public class Parser {
             return new Unary(t,unary());
         }
 
-        //return primary();
         return call();
     }
 
@@ -382,11 +381,12 @@ public class Parser {
 
         while (match(TokenType.LEFT_BRACE)){
             //find all arguments
+            moveahead();
             List<Expression> arg=argument();
             argmentsList.add(arg);
             moveahead();
         }
-        if(argmentsList==null)
+        if(argmentsList.isEmpty())
             return primaryExp;
         else
             return new Call(primaryExp,argmentsList);
@@ -395,12 +395,16 @@ public class Parser {
     private List<Expression> argument(){
         List<Expression> argments=new ArrayList<>();
 
+        if(match(TokenType.RIGHT_BRACE)) //means 0 arguments
+            return argments;
+
         Expression exp=expression();
         argments.add(exp);
+
         while(match(TokenType.COMMA)){
+            moveahead();
             Expression exp2=expression();
             argments.add(exp2);
-
         }
 
         return argments;

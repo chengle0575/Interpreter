@@ -84,6 +84,7 @@ public class Lox {
         }
 
 */
+        /*
         Interpreter interpreter=new Interpreter();
         try{
             interpreter.execute(statmentList);
@@ -91,6 +92,8 @@ public class Lox {
             hasRuntimeError=true;
             System.out.println(e);
         }
+
+         */
 
 
 
