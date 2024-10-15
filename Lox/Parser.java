@@ -118,14 +118,24 @@ public class Parser {
     }
 
     private Stmt statement(){ //statement -> printStmt || exprStmt || block
-        if(match(TokenType.PRINT)) return printStatement();
-        if(match(TokenType.LEFT_PAREN)) return new BlockStmt(block()); /////////////////
-        if(match(TokenType.IF)) return ifStmt();
-        if(match(TokenType.WHILE)) return whileStmt();
-        if(match(TokenType.FOR)) return forStmt();
-        return expressionStatement();
+        if(match(TokenType.RETURN)) return returnStmt();
+        else if(match(TokenType.PRINT)) return printStatement();
+        else if(match(TokenType.LEFT_PAREN)) return new BlockStmt(block()); /////////////////
+        else if(match(TokenType.IF)) return ifStmt();
+        else if(match(TokenType.WHILE)) return whileStmt();
+        else if(match(TokenType.FOR)) return forStmt();
+        else return expressionStatement();
     }
 
+    private Stmt returnStmt(){
+        moveahead();
+        if(match(TokenType.SEMICOLON))
+            return new ReturnStmt(null);
+
+        Expression exp=expression();
+        skipEndSemicolon();
+        return new ReturnStmt(exp);
+    }
 
     private List<Stmt> block(){
         //find the last "}", and parse inside

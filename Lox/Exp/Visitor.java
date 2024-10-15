@@ -15,4 +15,5 @@ public R visit(LogicOpration logicOpration);
 public R visit(WhileStmt whileStmt);
 public R visit(FuncStmt funcStmt);
 public R visit(Call call);
+public R visit(ReturnStmt returnStmt);
 }

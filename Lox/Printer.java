@@ -101,4 +101,9 @@ public class Printer implements Visitor {
     public Object visit(Call call) {
         return null;
     }
+
+    @Override
+    public Object visit(ReturnStmt returnStmt) {
+        return null;
+    }
 }

@@ -153,6 +153,13 @@ public class Interpreter implements Visitor {
         return value;
     }
 
+    @Override
+    public Object visit(ReturnStmt returnStmt) {
+        if (returnStmt.getValue()==null)
+            return null;
+        return evaluateExpression(returnStmt.getValue());
+    }
+
     //helper function
     List<Object> getArgumentListAftEvaluation(List<Expression> l){
         List<Object> res=new ArrayList<>();
