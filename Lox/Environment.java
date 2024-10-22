@@ -22,11 +22,11 @@ public class Environment {
         return outerEnv;
     }
     public void assign(String key, Object value){
-        Environment toupdateEnv=findEnvContainskey(key);
-        if(toupdateEnv==null)
+        Environment toUpdateEnv=findEnvContainskey(key);
+        if(toUpdateEnv==null)
             this.map.put(key,value); //means this assign is used in declaraction: var a=3;
         else
-            toupdateEnv.map.put(key,value);//means this assign is used in assignment: a=a+3;
+            toUpdateEnv.map.put(key,value);//means this assign is used in assignment: a=a+3;
     }
 
     public Object get(Token t){

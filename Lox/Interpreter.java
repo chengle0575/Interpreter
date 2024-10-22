@@ -117,7 +117,7 @@ public class Interpreter implements Visitor {
     public Object visit(FuncStmt funcStmt) {
         //declare a function and store it in the env
         Token identifier=funcStmt.getIdentifier();
-        LoxFunction loxFunction=new LoxFunction(funcStmt.getParameters(),funcStmt.getFunctionContent());
+        LoxFunction loxFunction=new LoxFunction(funcStmt.getParameters(),funcStmt.getFunctionContent(),env);
         env.assign(identifier.literal,loxFunction);
 
         return null;
@@ -125,6 +125,7 @@ public class Interpreter implements Visitor {
 
     @Override
     public Object visit(Call call) {
+
         Token functionName=((Variable)call.getFunctionName()).getName();
         List<List<Expression>> argmentsLists=call.getArgmentsList();
         Object value=null;
@@ -141,7 +142,7 @@ public class Interpreter implements Visitor {
 
                 List<Object> argumentListAftEvaluation=getArgumentListAftEvaluation(argumentList);
 
-                env=new Environment(env);
+                env=new Environment(((LoxFunction) loxFunction).closure);
                 value=callee.call(this,argumentListAftEvaluation); //need to create a new env for the running function
                 env=env.getOuterEnv();//exist the function env
 
@@ -156,8 +157,8 @@ public class Interpreter implements Visitor {
     @Override
     public Object visit(ReturnStmt returnStmt) {
         if (returnStmt.getValue()==null)
-            return null;
-        return evaluateExpression(returnStmt.getValue());
+            throw new ReturnValue(null);
+        throw new ReturnValue( evaluateExpression(returnStmt.getValue()));
     }
 
     //helper function
