@@ -55,6 +55,7 @@ public class Parser {
     private Stmt function(){
         Token identifier=this.input.get(p);
         moveahead();
+
         if(this.input.get(p).type!=TokenType.LEFT_BRACE)
             throw new ParseError("Function parameters should be wrapped in '()',lack '(' here");
         moveahead();

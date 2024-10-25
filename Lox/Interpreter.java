@@ -258,7 +258,11 @@ public class Interpreter implements Visitor {
     }
 
 
+    public void bind(Token token,int hop){
+        //bind the token & hops away from its current scope
 
+        //the Token need to make sure can be identifier. think about equals and hashcode method under Token class && whether the Parser finish its part of job
+    }
 
 
     //helper functions
