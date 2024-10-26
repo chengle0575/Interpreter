@@ -44,7 +44,7 @@ public class Interpreter implements Visitor {
             Expression exp=stmt.getExp();
             return evaluateExpression(exp);
         } else if (stmt instanceof VarStmt){
-            String identifier=((VarStmt) stmt).getIdentifier().literal;
+            Token identifier=((VarStmt) stmt).getIdentifier();
 
             env.declare(identifier,evaluateExpression(stmt.getExp()));
             //env.assign(identifier, evaluateExpression(stmt.getExp()));

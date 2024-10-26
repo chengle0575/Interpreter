@@ -22,9 +22,13 @@ public class Environment {
         return outerEnv;
     }
 
-    public void declare(String key,Object value){
-        this.map.put(key,value);
+    public void declare(Token key,Object value){
+        if(this.map.containsKey(key.literal))
+            throw new RuntimeError(key,"Duplicate Declaration happened.");
+        this.map.put(key.literal,value);
     }
+
+
     public void assign(String key, Object value){
         Environment toUpdateEnv=findEnvContainskey(key);
         if(toUpdateEnv==null)
@@ -32,6 +36,8 @@ public class Environment {
         else
             toUpdateEnv.map.put(key,value);//means this assign is used in assignment: a=a+3;
     }
+
+
 
     public Object get(Token t, int hopNum){
 
