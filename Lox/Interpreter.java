@@ -4,13 +4,15 @@ import Lox.Declaration.Statement.*;
 import Lox.Exp.*;
 
 import java.security.spec.ECPoint;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Interpreter implements Visitor {
 
-    private Environment env=new Environment();
+
+    private Environment globalEnv=new Environment();
+    private Environment env=globalEnv;
+
+    private Map<Expression,Integer> bindingHops=new HashMap<>();
 
     public Object execute(List<Stmt> stmtlist){
         for(Stmt stmt:stmtlist){
@@ -23,14 +25,14 @@ public class Interpreter implements Visitor {
     public Environment getEnv(){
         return env;
     }
+
+
     private Object evaluateStatement(Stmt stmt){
         return stmt.accept(this);
     }
     private Object evaluateExpression(Expression exp){
         return exp.accept(this);
     }
-
-
 
 
     @Override
@@ -43,17 +45,29 @@ public class Interpreter implements Visitor {
             return evaluateExpression(exp);
         } else if (stmt instanceof VarStmt){
             String identifier=((VarStmt) stmt).getIdentifier().literal;
-            env.assign(identifier, evaluateExpression(stmt.getExp()));
+
+            env.declare(identifier,evaluateExpression(stmt.getExp()));
+            //env.assign(identifier, evaluateExpression(stmt.getExp()));
         }
         return null;
     }
 
     @Override
     public Object visit(Assign assign) {
-        ;Token identifier=assign.getName();
-         if(env.get(identifier)!=null){ //this will check if identifier is exsiting in map and throw error if not
-             env.assign(identifier.literal,evaluateExpression(assign.getValue()));
-         }
+         Token identifier=assign.getName();
+
+         //int hopnum=getHop(identifier);
+
+         //if(hopnum==-1){
+             if(globalEnv.get(identifier)!=null){ //this will check if identifier is exsiting in map and throw error if not
+                 globalEnv.assign(identifier.literal,evaluateExpression(assign.getValue()));
+             }else throw new RuntimeError(identifier,"Not declared yet.");
+         //} else{
+             //if(env.get(identifier,hopnum)!=null){ //this will check if identifier is exsiting in map and throw error if not
+         //        env.assign(identifier.literal,evaluateExpression(assign.getValue()));
+             //}
+         //}
+
          return null;
     }
 
@@ -131,7 +145,19 @@ public class Interpreter implements Visitor {
         Object value=null;
 
         for(List<Expression> argumentList:argmentsLists){
+            /*
+            Object loxFunction=null;
+            int hopnum=getHop(functionName);
+            if(hopnum==-1)
+                loxFunction=globalEnv.get(functionName);
+            else loxFunction=env.get(functionName,hopnum);
+
+             */
+
             Object loxFunction=env.get(functionName);
+
+
+
 
             if(loxFunction instanceof LoxFunction){
                 LoxFunction callee=(LoxFunction) loxFunction;
@@ -248,7 +274,11 @@ public class Interpreter implements Visitor {
 
     @Override
     public Object visit(Variable variable) { //deal with variable in the right hand side in the expression
-        return env.get(variable.getName());
+        int hopnum=getHop(variable);
+        if(hopnum==-1){
+            return globalEnv.get(variable.getName());
+        }else
+            return env.get(variable.getName(),hopnum);
     }
 
     @Override
@@ -258,12 +288,25 @@ public class Interpreter implements Visitor {
     }
 
 
-    public void bind(Token token,int hop){
-        //bind the token & hops away from its current scope
 
+
+    public void bind(Expression exp,int hop){
+        //bind the token & hops away from its current scope
+        if(hop==-1) return;
+
+        if(bindingHops.containsKey(exp)) ; //means already binds. To follow the static scope rule, do not bind again
+        else{
+            bindingHops.put(exp,hop);
+        }
         //the Token need to make sure can be identifier. think about equals and hashcode method under Token class && whether the Parser finish its part of job
+
     }
 
+    public int getHop(Expression exp){
+        if(bindingHops.containsKey(exp))
+            return bindingHops.get(exp);
+        return -1;
+    }
 
     //helper functions
     private static boolean isTruth(Object o){

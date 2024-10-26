@@ -3,10 +3,7 @@ package Lox;
 import Lox.Declaration.Statement.*;
 import Lox.Exp.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 public class Resolver implements Visitor {
     // the main job of this resolver is:
@@ -27,9 +24,6 @@ public class Resolver implements Visitor {
             resolve(stmt);
         }
     }
-
-
-
     void resolve(Stmt stmt){
         stmt.accept(this);
     }
@@ -53,9 +47,12 @@ public class Resolver implements Visitor {
             //need to deal with declaration
             //put this variable binding into the scope
             Token identifier=((VarStmt) stmt).getIdentifier();
-            if(this.stack.peek().containsKey(identifier))
-                throw new ParseError(identifier,"Duplication definiation on the same identifier");
-            this.stack.peek().put(identifier,true);// means the value of this identifier exists in current scope
+            if(this.stack.size()>0){
+                if(this.stack.peek().containsKey(identifier))
+                    throw new ParseError(identifier,"Duplication definiation on the same identifier");
+                this.stack.peek().put(identifier,true);// means the value of this identifier exists in current scope
+            }
+
         }
 
         return null;
@@ -64,11 +61,9 @@ public class Resolver implements Visitor {
 
     @Override
     public Object visit(BlockStmt blockStmt) {
-
-        Map<Token,Integer> scope=new HashMap<>();
-        addStackEntry(scope);
+        addStackEntry();
         //do something
-        resolve(blockStmt);
+        resolve(blockStmt.getStmtslist());
 
         popSrackEntry();
         return null;
@@ -76,26 +71,38 @@ public class Resolver implements Visitor {
     }
 
     //helper function
-    void addDeclarationInCurrentScope(Token identifier){
-
+    void addDeclarationInCurrentScope(Token identifier){ // var a;
+        Map<Token,Boolean> currentScope=this.stack.peek();
+        if(currentScope.containsKey(identifier) && currentScope.get(identifier)==true)
+            throw new ParseError(identifier,"Duplication definiation on the same identifier");
+        currentScope.put(identifier,false); //means now this scope can find this variable but not any value;
     }
-    void addDefinitionInCurrentScope(Token identifier){
+    void addDefinitionInAccordinglyScope(Token identifier){ // a=3
+        //should throw error if the identifier already has a value binded? /////////////////////////////////////////////////////
 
-
+        Map<Token,Boolean> toModifyScope=searchOutwardsForScope(identifier);
+        if(toModifyScope==null) //means this is in the global env
+            return;
+        toModifyScope.put(identifier,true);// means the value of this identifier exists in current scope
     }
+
+
 
     //node that involve define a variable in current scope
     @Override
     public Object visit(FuncStmt funcStmt) {
 
+        if(this.stack.size()>0){
+            addDeclarationInCurrentScope(funcStmt.getIdentifier());
+            addDefinitionInAccordinglyScope(funcStmt.getIdentifier());
+        }
 
-        //open scope for the content in a function
-        Map<Token,Integer> scope=new HashMap<>();
-        addStackEntry(scope);
         resolve(funcStmt.getFunctionContent());
-        popSrackEntry();
         return null;
     }
+
+
+
 
     @Override
     public Object visit(IfStmt ifStmt) {
@@ -125,11 +132,10 @@ public class Resolver implements Visitor {
     public Object visit(Assign assign) {//need to deal with assignment
 
         Token identifier=assign.getName();
-        // if(this.stack.peek().containsKey(identifier))
-        //     throw new RuntimeError(identifier,"Duplication definiation on the same identifier");
-        this.stack.peek().put(identifier,true);// means the value of this identifier exists in current scope
+        if(this.stack.size()>0)
+            addDefinitionInAccordinglyScope(identifier);
 
-
+        resolve(assign.getValue());
         return null;
     }
 
@@ -138,40 +144,31 @@ public class Resolver implements Visitor {
 
     @Override
     public Object visit(LogicOpration logicOpration) {
+        for(Expression exp:logicOpration.getOperands()){
+            resolve(exp);
+        }
         return null;
     }
 
 
-
-
-
-
     @Override
     public Object visit(Grouping grouping) {
+        resolve(grouping.exp);
         return null;
     }
 
     @Override
     public Object visit(Unary unary) {
+        resolve(unary.right);
         return null;
     }
 
     @Override
     public Object visit(Binary binary) {
+        resolve(binary.left);
+        resolve(binary.right);
         return null;
     }
-
-
-    //These nodes involve variable binding
-    @Override
-    public Object visit(Variable variable) {
-        //search from current scope && send the binding information to the interpreter
-        int hopnum=searchOutwards(variable.getName());
-        interpreter.bind(variable.getName(),hopnum);
-        return null;
-    }
-
-
 
     @Override
     public Object visit(Literal literal) {
@@ -180,28 +177,80 @@ public class Resolver implements Visitor {
 
     @Override
     public Object visit(Call call) {
+        resolve(call.getFunctionName());
+        for(List<Expression> expressionList:call.getArgmentsList()){
+            for(Expression exp:expressionList)
+                resolve(exp);
+        }
+
         return null;
     }
 
 
 
-
-
-
-
-
-
-    //helper function
-    int searchOutwards(Token name){
-
+    //These nodes involve variable binding
+    @Override
+    public Object visit(Variable variable) {
+        //search from current scope && send the binding information to the interpreter
+        int hopnum=searchOutwards(variable.getName());
+        interpreter.bind(variable,hopnum);
+        return null;
     }
 
+
+
     //helper function
-    void addStackEntry(Map<Token,Integer> scope){
+    private int searchOutwards(Token name){ //keep searching following the stack
+        Queue<Map<Token,Boolean>> saveStack=new ArrayDeque<>();
+
+        int count=0;
+
+        while(stack.size()>0){
+            Map<Token,Boolean> seachStack=stack.pop();
+            saveStack.add(seachStack);
+            if(seachStack.containsKey(name)&&seachStack.get(name))
+                break;
+            count+=1;
+
+        }
+
+        //restore the stack
+        while(saveStack.size()>0){
+            stack.add(saveStack.poll());
+        }
+
+        if(count==stack.size()) return -1; //means cannot find this variable in the stack, implies that this variable is global
+        return count;
+    }
+
+    private Map<Token,Boolean> searchOutwardsForScope(Token name){
+        Queue<Map<Token,Boolean>> saveStack=new ArrayDeque<>();
+        Map<Token,Boolean> res=null;
+        while(stack.size()>0){
+            Map<Token,Boolean> seachStack=stack.pop();
+            saveStack.add(seachStack);
+
+            if(seachStack.containsKey(name)&&seachStack.get(name)==false){
+                res=seachStack;
+                break;
+            }
+
+        }
+
+        //restore the stack
+        while(saveStack.size()>0){
+            stack.add(saveStack.poll());
+        }
+
+        return res;
+    }
+
+    private void addStackEntry(){
+        Map<Token,Boolean> scope=new HashMap<>();
         stack.add(scope);
     }
 
-    void popSrackEntry(){
+    private void popSrackEntry(){
         stack.pop();
     }
 

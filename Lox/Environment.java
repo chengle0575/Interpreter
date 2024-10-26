@@ -21,6 +21,10 @@ public class Environment {
     public Environment getOuterEnv(){
         return outerEnv;
     }
+
+    public void declare(String key,Object value){
+        this.map.put(key,value);
+    }
     public void assign(String key, Object value){
         Environment toUpdateEnv=findEnvContainskey(key);
         if(toUpdateEnv==null)
@@ -28,6 +32,22 @@ public class Environment {
         else
             toUpdateEnv.map.put(key,value);//means this assign is used in assignment: a=a+3;
     }
+
+    public Object get(Token t, int hopNum){
+
+        if(hopNum==-1){
+
+        }
+        Environment curenv=this;
+        while(hopNum>0){
+            curenv=curenv.outerEnv;
+            hopNum--;
+        }
+
+        return curenv.map.get(t.literal);
+    }
+
+
 
     public Object get(Token t){
 
@@ -39,8 +59,12 @@ public class Environment {
             return outerEnv.get(t);
     }
 
+
+
     Environment findEnvContainskey(String key){
+
         Environment residentEnv=this;
+
         while(residentEnv!=null && !residentEnv.map.containsKey(key)){
             residentEnv=residentEnv.outerEnv;
         }

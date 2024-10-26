@@ -57,4 +57,19 @@ public class Token {
         hmap.put("while", TokenType.WHILE);
         return hmap;
     }
+
+    @Override
+    public boolean equals(Object that){
+        if(that instanceof Token){
+            if(this.type==((Token) that).type && this.literal.equals(((Token) that).literal))
+                return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public int hashCode(){
+        return this.literal.hashCode();
+    }
 }

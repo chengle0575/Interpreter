@@ -86,6 +86,10 @@ public class Lox {
 */
 
         Interpreter interpreter=new Interpreter();
+        Resolver resolver=new Resolver(interpreter);
+
+        resolver.resolve(statmentList);
+
         try{
             interpreter.execute(statmentList);
         }catch (RuntimeError e){
