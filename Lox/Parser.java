@@ -33,16 +33,39 @@ public class Parser {
 
     private Stmt declaration(){ //declaration -> funDecl || valDecl || statement
         try{
-            if((match(TokenType.FUN))) return funDecl();
+            if(match((TokenType.CLASS))) return classDecl();
+            else if((match(TokenType.FUN))) return funDecl();
             else if(match(TokenType.VAR)) return valDecl();
             else return statement();
         }catch (ParseError e){
-            System.out.println(e);
+            System.out.println(e.message);
             //update pointer p to be ready for the next declaration to parse
             panicRecoverFromError();
         }
 
         return null;
+    }
+
+    private Stmt classDecl(){
+        moveahead();
+        Token identifier=input.get(p);
+        moveahead();
+
+        if(!match(TokenType.LEFT_PAREN))
+            throw new ParseError(identifier,"Lack '{' after CLASS"+identifier);
+        moveahead();
+
+        List<Stmt> methods=new ArrayList<>();
+        while(!reachEnd(p)&&!match(TokenType.RIGHT_PAREN) ){
+            methods.add(function());
+        }
+
+        if(reachEnd(p))
+            throw new ParseError(identifier,"Lack '}' at end of CLASS"+identifier);
+
+        moveahead();
+
+       return new ClassStmt(identifier,methods);
     }
 
 
@@ -119,6 +142,7 @@ public class Parser {
     }
 
     private Stmt statement(){ //statement -> printStmt || exprStmt || block
+
         if(match(TokenType.RETURN)) return returnStmt();
         else if(match(TokenType.PRINT)) return printStatement();
         else if(match(TokenType.LEFT_PAREN)) return new BlockStmt(block()); /////////////////
@@ -127,6 +151,8 @@ public class Parser {
         else if(match(TokenType.FOR)) return forStmt();
         else return expressionStatement();
     }
+
+
 
     private Stmt returnStmt(){
         moveahead();
@@ -496,6 +522,9 @@ public class Parser {
     }
 
     private void panicRecoverFromError(){
+        if(reachEnd(p))
+            return;
+
         while(this.input.get(p).type!=TokenType.SEMICOLON){
             p++;
         }

@@ -187,6 +187,15 @@ public class Interpreter implements Visitor {
         throw new ReturnValue( evaluateExpression(returnStmt.getValue()));
     }
 
+    @Override
+    public Object visit(ClassStmt classStmt) {
+        Token classname=classStmt.getClassname();
+        List<Stmt> methods=classStmt.getMethods();
+
+        env.declare(classname,methods);
+        return null;
+    }
+
     //helper function
     List<Object> getArgumentListAftEvaluation(List<Expression> l){
         List<Object> res=new ArrayList<>();

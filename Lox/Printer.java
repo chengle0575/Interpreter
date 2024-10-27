@@ -7,7 +7,7 @@ public class Printer implements Visitor {
 
     int space=1;
 
-    Printer(){
+    public Printer(){
 
     }
     Printer(int space){
@@ -104,6 +104,11 @@ public class Printer implements Visitor {
 
     @Override
     public Object visit(ReturnStmt returnStmt) {
+        return null;
+    }
+
+    @Override
+    public Object visit(ClassStmt classStmt) {
         return null;
     }
 }

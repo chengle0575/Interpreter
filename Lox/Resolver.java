@@ -10,6 +10,7 @@ public class Resolver implements Visitor {
     // 1. traverse the AST tree,
     // 2. resolve the scope --> figure out the nodes involve:
     // 3. and defer the scope binding information to the interpreter
+    // 4. detect meaningless return statement outside of a function and report error
 
     private Interpreter interpreter;
 
@@ -123,8 +124,25 @@ public class Resolver implements Visitor {
 
     @Override
     public Object visit(ReturnStmt returnStmt) {
+
+        //detect if there is a function
+
         resolve(returnStmt.getValue());
         return null;
+    }
+
+    @Override
+    public Object visit(ClassStmt classStmt) {
+        if(this.stack.size()>0){
+            addDeclarationInCurrentScope(classStmt.getClassname());
+            addDefinitionInAccordinglyScope(classStmt.getClassname());
+        }
+
+        resolve(classStmt.getMethods());
+        return null;
+
+
+
     }
 
 
