@@ -140,40 +140,44 @@ public class Interpreter implements Visitor {
     @Override
     public Object visit(Call call) {
 
-        Token functionName=((Variable)call.getFunctionName()).getName();
+        Token callableName=((Variable)call.getFunctionName()).getName();
         List<List<Expression>> argmentsLists=call.getArgmentsList();
         Object value=null;
 
         for(List<Expression> argumentList:argmentsLists){
-            /*
-            Object loxFunction=null;
-            int hopnum=getHop(functionName);
-            if(hopnum==-1)
-                loxFunction=globalEnv.get(functionName);
-            else loxFunction=env.get(functionName,hopnum);
 
-             */
-
-            Object loxFunction=env.get(functionName);
+            Object loxCallable=env.get(callableName);
 
 
-
-
-            if(loxFunction instanceof LoxFunction){
-                LoxFunction callee=(LoxFunction) loxFunction;
+            if(loxCallable instanceof LoxFunction){
+                LoxFunction callee=(LoxFunction) loxCallable;
 
                 //test the same size of argume
                 if(argumentList.size()!=callee.arity())
-                    throw new RuntimeError(functionName,"The arguments you passed are less/more than requirement");
+                    throw new RuntimeError(callableName,"The arguments you passed are less/more than requirement");
 
                 List<Object> argumentListAftEvaluation=getArgumentListAftEvaluation(argumentList);
 
-                env=new Environment(((LoxFunction) loxFunction).closure);
+                env=new Environment(((LoxFunction) loxCallable).closure);
                 value=callee.call(this,argumentListAftEvaluation); //need to create a new env for the running function
                 env=env.getOuterEnv();//exist the function env
 
-            }else{
-                throw new RuntimeError(functionName,"Cannot find function");
+            }else if(loxCallable instanceof LoxClass){
+                LoxClass classTemplate=(LoxClass) loxCallable;
+
+                //test the same size of argume
+               // if(argumentList.size()!=classTemplate.arity())
+                 //   throw new RuntimeError(callableName,"The arguments you passed are less/more than requirement");
+
+                List<Object> argumentListAftEvaluation=getArgumentListAftEvaluation(argumentList);
+
+                env=new Environment(((LoxClass) loxCallable).closure);
+                value=classTemplate.call(this,argumentListAftEvaluation); //need to create a new env for the running function
+                env=env.getOuterEnv();//exist the function env
+            }
+
+            else{
+                throw new RuntimeError(callableName,"Cannot find function");
             }
 
         }
@@ -192,7 +196,7 @@ public class Interpreter implements Visitor {
         Token classname=classStmt.getClassname();
         List<Stmt> methods=classStmt.getMethods();
 
-        env.declare(classname,methods);
+        env.declare(classname,new LoxClass(classname.literal,methods,env));
         return null;
     }
 
