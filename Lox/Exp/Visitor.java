@@ -17,4 +17,5 @@ public R visit(FuncStmt funcStmt);
 public R visit(Call call);
 public R visit(ReturnStmt returnStmt);
 public R visit(ClassStmt classStmt);
+public R visit(Get get);
 }

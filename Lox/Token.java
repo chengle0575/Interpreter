@@ -28,7 +28,13 @@ public class Token {
         this.line=line;
     }
 
+    public TokenType getType() {
+        return type;
+    }
 
+    public String getLiteral(){
+        return literal;
+    }
 
     public String toString(){
         return this.type.toString()+" "+this.literal;

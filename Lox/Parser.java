@@ -411,23 +411,38 @@ public class Parser {
         return call();
     }
 
-    private Expression call(){ // call -> primary ( "(" arguments? ")")*
+    private Expression call(){ // call -> primary ( "(" arguments? ")" | "." IDENTIFIER )*
 
+        Token primIdentifier=input.get(p);
         Expression primaryExp=primary();
 
         List<List<Expression>> argmentsList=new ArrayList<>();
 
-        while (match(TokenType.LEFT_BRACE)){
-            //find all arguments
+        if(match(TokenType.LEFT_BRACE)){ //function call with arguments
+            while (match(TokenType.LEFT_BRACE)){
+                //find all arguments
+                moveahead();
+                List<Expression> arg=argument();
+                argmentsList.add(arg);
+                moveahead();
+            }
+
+            if(argmentsList.isEmpty())
+                return primaryExp;
+            else
+                return new Call(primaryExp,argmentsList);
+
+        }else if(match(TokenType.DOT)){ //instance access properties
+            //keep accessing using '. identifier'
+
+            //apple.color.change(red);
             moveahead();
-            List<Expression> arg=argument();
-            argmentsList.add(arg);
-            moveahead();
-        }
-        if(argmentsList.isEmpty())
-            return primaryExp;
-        else
-            return new Call(primaryExp,argmentsList);
+            Expression exp=new Get(primaryExp,call());
+
+            return exp;
+        }else
+            throw new ParseError(primIdentifier,"Call expression can only be used for function/class, should followed by '{' or '.' ");
+
     }
 
     private List<Expression> argument(){

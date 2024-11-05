@@ -200,6 +200,11 @@ public class Interpreter implements Visitor {
         return null;
     }
 
+    @Override
+    public Object visit(Get get) {
+        return null;
+    }
+
     //helper function
     List<Object> getArgumentListAftEvaluation(List<Expression> l){
         List<Object> res=new ArrayList<>();

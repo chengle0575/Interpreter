@@ -137,12 +137,18 @@ public class Resolver implements Visitor {
             addDeclarationInCurrentScope(classStmt.getClassname());
             addDefinitionInAccordinglyScope(classStmt.getClassname());
         }
-
+        addStackEntry();
         resolve(classStmt.getMethods());
+        popSrackEntry();
         return null;
 
 
 
+    }
+
+    @Override
+    public Object visit(Get get) {
+        return null;
     }
 
 

@@ -15,6 +15,18 @@ public class Scanner {
     public Scanner(String source){
         this.source=source;
     }
+    public Scanner(){}
+
+    public void setSource(String source) {
+        this.source = source;
+        this.tokenlist=new ArrayList<>();
+        pstart=0;
+        pend=0;
+    }
+
+    public List<Token> getTokenlist() {
+        return tokenlist;
+    }
 
     public void scanTokens(){
 
@@ -37,6 +49,7 @@ public class Scanner {
                         addToken(TokenType.SLASH,line);
                     }
                     break;
+                    //## 'matchAhead' is used to deal with cases that single character may have multiple possible token types
                 case '=':
                     if(matchAhead('=')){
                         addToken(TokenType.EQUAL_EQUAL,line);
@@ -79,7 +92,8 @@ public class Scanner {
                         String numliteral=getNumber();
                         pstart=pend;
                         addToken(TokenType.NUMBER,numliteral,line);
-                    }else if(Character.isAlphabetic(source.charAt(pstart))||source.charAt(pstart)=='_'){ //key idea here: 1.keywords are reserved identifier 2.the match should follow maximal munch principle
+                    }else if(Character.isAlphabetic(source.charAt(pstart))||source.charAt(pstart)=='_'){
+                        //### key idea here: 1.keywords are reserved identifier 2.the match should follow maximal munch principle
                         String identifierLiteral=getIdentifier();
                         pstart=pend-1;
                         if(isReservedKeywords(identifierLiteral)!=null){
@@ -169,7 +183,7 @@ public class Scanner {
 
 
     public String getIdentifier(){
-        while(pend<source.length()-1&&isAlphaNumerical(source.charAt(pend))){
+        while(pend<source.length()&&isAlphaNumerical(source.charAt(pend))){
             pend++;
         }
         return source.substring(pstart,pend);
